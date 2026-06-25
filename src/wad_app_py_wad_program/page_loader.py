@@ -7,6 +7,8 @@ downloading it from the Internet, or using a local file (for tests).
 from abc import ABC, abstractmethod
 from typing import override
 
+import requests
+
 from .exceptions import PageNotFoundException
 
 
@@ -30,10 +32,11 @@ class LocalFilePageLoader(PageLoader):
         """Set given values for the object."""
         super().__init__()
         self._pages: dict[str, str] = {
-            'https://www.wearedevelopers.com/world-congress/agenda/schedule': main_filename,
+            'https://www.wearedevelopers.com/world-congress/agenda/schedule': (
+                main_filename
+            ),
             **session_page_filenames,
         }
-        pass
 
     @override
     def load_page(self, url: str) -> str:
@@ -43,3 +46,29 @@ class LocalFilePageLoader(PageLoader):
         with open(self._pages[url]) as infile:
             contents = infile.read()
         return contents
+
+
+class WebPageLoader(PageLoader):
+    """PageLoader for retrieving from the web."""
+
+    def __init__(self) -> None:
+        """Set given values for the object."""
+        super().__init__()
+
+    @override
+    def load_page(self, url: str) -> str:
+        response = requests.get(
+            url,
+            timeout=30,
+            headers={
+                'User-Agent': (
+                    'Mozilla/5.0 (X11; Linux x86_64) '
+                    'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    'Chrome/126.0.0.0 Safari/537.36'
+                )
+            },
+        )
+        if response.status_code == 404:
+            raise PageNotFoundException('Page not found')
+        response.raise_for_status()
+        return response.text

@@ -1,5 +1,7 @@
 """Module with the WadProgramApp class."""
 
+from rich.console import Console
+
 from .database import Database
 from .program_retriever import ProgramRetriever
 
@@ -17,9 +19,13 @@ class WadProgramApp:
         self._retriever = retriever
         self._database: Database = database
         self._database.load()
+        self._console = Console()
 
     def update_database(self) -> None:
         """Update the database."""
         data = self._retriever.retrieve_program()
+        self._console.print(
+            f'Retrieved {len(data.sessions)} sessions from the web.'
+        )
         self._database.sync(data)
         self._database.save()

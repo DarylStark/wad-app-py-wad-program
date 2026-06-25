@@ -13,6 +13,16 @@
                 "./test_database.json",
                 "update"
             ]
+        },
+        {
+            "name": "Wad - List",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "wad_app_py_wad_program",
+            "args": [
+                "./test_database.json",
+                "list"
+            ]
         }
     ]
 }

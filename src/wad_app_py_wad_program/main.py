@@ -4,7 +4,7 @@ from typer import Context, Typer
 
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
-from .page_loader import LocalFilePageLoader
+from .page_loader import LocalFilePageLoader, WebPageLoader
 from .wad_program_app import WadProgramApp
 
 app = Typer(no_args_is_help=True)
@@ -13,9 +13,10 @@ app = Typer(no_args_is_help=True)
 @app.command(
     name='list', help='List the sessions', short_help='List the sessions'
 )
-def list_sessions() -> None:
+def list_sessions(ctx: Context) -> None:
     """List sessions currently in the database."""
     # TODO: Implement
+    pass
 
 
 @app.command(
@@ -36,20 +37,7 @@ def common_command_line_options(ctx: Context, json_filename: str) -> None:
     setup a object that is used by all commands.
     """
     ctx.obj = WadProgramApp(
-        retriever=HtmlProgramRetriever(
-            LocalFilePageLoader(
-                main_filename='tests/test_data/program_page.html',
-                session_page_filenames={
-                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/5-things-in-tech-that-matter-now-2026-edition-1260805': 'tests/test_data/5-things-in-tech-that-matter-now-2026-edition-1260805.html',
-                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/cuda-python-gpu-programming-for-the-modern-developer-1246897': 'tests/test_data/cuda-python-gpu-programming-for-the-modern-developer-1246897.html',
-                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/design-patterns-for-ai-products-in-2026-1150609': 'tests/test_data/design-patterns-for-ai-products-in-2026-1150609.html',
-                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/how-to-read-code-properly-1085275': 'tests/test_data/how-to-read-code-properly-1085275.html',
-                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/introducing-json-structure-1119688': 'tests/test_data/introducing-json-structure-1119688.html',
-                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/keynote-1244226': 'tests/test_data/keynote-1244226.html',
-                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/you-will-migrate-eventually-a-developer-approach-to-technology-adoption-1154249': 'tests/test_data/you-will-migrate-eventually-a-developer-approach-to-technology-adoption-1154249.html',
-                },
-            )
-        ),
+        retriever=HtmlProgramRetriever(WebPageLoader()),
         database=JsonDatabase(json_filename=json_filename),
     )
 

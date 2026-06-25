@@ -1,5 +1,6 @@
 """Package with a Program Retriever that retrieves via HTML."""
 
+import re
 from datetime import date, datetime
 from typing import override
 
@@ -9,7 +10,6 @@ from .exceptions import PageNotFoundException
 from .model import EventData, Session, Speaker
 from .page_loader import PageLoader
 from .program_retriever import ProgramRetriever
-import re
 
 
 class HtmlProgramRetriever(ProgramRetriever):
@@ -157,7 +157,6 @@ class HtmlProgramRetriever(ProgramRetriever):
             ),
         )
         unique_urls = {session.get('href', '') for session in sessions}
-
         session_list: list[Session] = []
 
         for url in unique_urls:
@@ -178,8 +177,8 @@ class HtmlProgramRetriever(ProgramRetriever):
         days = soup.select('div[data-grid-panel]')
         for day in days:
             sessions = self._get_sessions_for_day(day)
-        # TODO: make all speakers unique and add all sessions to the correct
-        # speakers
+        # TODO: make this a method for `EventData`. Within the `Database` class
+        # this is also used and the code is now duplicate.
         speakers: dict[str, Speaker] = {}
         for session in sessions:
             for speaker in session.speakers:
