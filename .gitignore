@@ -12,3 +12,4 @@ wheels/
 coverage.lcov
 .coverage
 htmlcov
+test_database.json

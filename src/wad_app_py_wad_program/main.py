@@ -46,6 +46,7 @@ def common_command_line_options(ctx: Context, json_filename: str) -> None:
                     'https://www.wearedevelopers.com/world-congress/agenda/sessions/how-to-read-code-properly-1085275': 'tests/test_data/how-to-read-code-properly-1085275.html',
                     'https://www.wearedevelopers.com/world-congress/agenda/sessions/introducing-json-structure-1119688': 'tests/test_data/introducing-json-structure-1119688.html',
                     'https://www.wearedevelopers.com/world-congress/agenda/sessions/keynote-1244226': 'tests/test_data/keynote-1244226.html',
+                    'https://www.wearedevelopers.com/world-congress/agenda/sessions/you-will-migrate-eventually-a-developer-approach-to-technology-adoption-1154249': 'tests/test_data/you-will-migrate-eventually-a-developer-approach-to-technology-adoption-1154249.html',
                 },
             )
         ),

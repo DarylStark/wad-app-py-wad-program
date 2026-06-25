@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "wad_app_py_wad_program",
             "args": [
-                "./temp_db.json",
+                "./test_database.json",
                 "update"
             ]
         }

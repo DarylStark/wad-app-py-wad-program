@@ -1,5 +1,6 @@
 """Module with a Json implementation for the database."""
 
+from pathlib import Path
 from typing import override
 
 from .database import Database
@@ -15,13 +16,28 @@ class JsonDatabase(Database):
 
     def __init__(self, json_filename: str) -> None:
         """Set values for the object."""
+        super().__init__()
         self._filename = json_filename
 
     @override
-    def get_sessions(self) -> EventData:
-        """Retrieve the sessions from the database."""
-        return EventData(sessions=[], speakers=[])
+    def load(self) -> None:
+        """Load the data from the database into memory."""
+        try:
+            json_text = Path(self._filename).read_text(encoding='utf-8')
+            self._data = EventData.model_validate_json(json_text)
+            self._update_speaker_list()
+        except FileNotFoundError:
+            pass
 
     @override
-    def save_sessions(self, data: EventData) -> None:
-        """Save all sessions to the databae."""
+    def save(self) -> None:
+        """Save the data to the databae."""
+        data_to_save = self._data.model_copy(deep=True)
+        for speaker in data_to_save.speakers:
+            speaker.sessions = []
+        data_to_save.speakers = []
+
+        Path(self._filename).write_text(
+            data_to_save.model_dump_json(),
+            encoding='utf-8',
+        )

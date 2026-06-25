@@ -16,7 +16,10 @@ class WadProgramApp:
         """Set correct objects for the class."""
         self._retriever = retriever
         self._database: Database = database
+        self._database.load()
 
     def update_database(self) -> None:
         """Update the database."""
         data = self._retriever.retrieve_program()
+        self._database.sync(data)
+        self._database.save()
