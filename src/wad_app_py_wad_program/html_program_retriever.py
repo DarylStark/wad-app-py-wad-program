@@ -1,3 +1,5 @@
+"""Package with a Program Retriever that retrieves via HTML."""
+
 from typing import override
 
 from bs4 import BeautifulSoup, Tag
@@ -12,6 +14,7 @@ class HtmlProgramRetriever(ProgramRetriever):
     """PRogram retriever for the HTML program."""
 
     def __init__(self, page_loader: PageLoader) -> None:
+        """Set the initial values."""
         self._page_loader = page_loader
 
     def _get_session_from_session_page(

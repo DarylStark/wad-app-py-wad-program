@@ -1,4 +1,7 @@
+"""Module with a abstract class for ProgramRetrievers."""
+
 from abc import ABC, abstractmethod
+
 from .model import EventData
 
 
