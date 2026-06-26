@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import override
 
-from .model import Session, Speaker, SessionState
+from .model import Session, SessionState, Speaker
 
 
 class Specification[T](ABC):
@@ -124,3 +124,24 @@ class StateSpecification(SessionSpecification):
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
         return obj.state == self._state
+
+
+class MainTopicSpecification(SessionSpecification):
+    """Specification for sessions with a specific text in the main topic."""
+
+    def __init__(self, text: str, case_sensitive: bool = True) -> None:
+        """Set the text to search for."""
+        self._text = text
+        self._case_sensitive = case_sensitive
+
+    def _is_satisfied_by_case_sensitive(self, obj: Session) -> bool:
+        return self._text in obj.main_topic
+
+    def _is_satisfied_by_case_insensitive(self, obj: Session) -> bool:
+        return self._text.lower() in obj.main_topic.lower()
+
+    @override
+    def is_satisfied_by(self, obj: Session) -> bool:
+        if self._case_sensitive:
+            return self._is_satisfied_by_case_sensitive(obj)
+        return self._is_satisfied_by_case_insensitive(obj)

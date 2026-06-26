@@ -8,12 +8,13 @@ from typer import Context, Option, Typer
 
 from .console_visitor import DetailsVisitor, TableVisitor
 from .database_specifications import (
+    AnyTextContainsSpecification,
     DescriptionContainsSpecification,
     IdSpecification,
+    MainTopicSpecification,
     SessionCompositeSpecification,
-    TitleContainsSpecification,
     StateSpecification,
-    AnyTextContainsSpecification,
+    TitleContainsSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
@@ -73,6 +74,13 @@ def list_sessions(
         default=None,
         help='Filter: specific state',
     ),
+    main_topic_text_i: list[str] = Option(
+        default=[], help='Filter: main topic contains text (case insensitive)'
+    ),
+    main_topic_text: list[str] = Option(
+        default=[],
+        help='Filter: main topic contains text (case sensitive)',
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -92,12 +100,18 @@ def list_sessions(
         'desc': (description_text, DescriptionContainsSpecification, True),
         'text': (text, AnyTextContainsSpecification, True),
         'text_i': (text_i, AnyTextContainsSpecification, False),
+        'main_topic_text_i': (
+            main_topic_text_i,
+            MainTopicSpecification,
+            False,
+        ),
+        'main_topic_text': (main_topic_text, MainTopicSpecification, True),
     }
 
     # Apply all text filters
     for texts, spec_class, case_sensitive in filters.values():
-        for text in texts:
-            spec.add_specification(spec_class(text, case_sensitive))
+        for input_text in texts:
+            spec.add_specification(spec_class(input_text, case_sensitive))
 
     # Apply optional filters
     if filter_id:

@@ -2,6 +2,7 @@
 
 from typing import override
 
+from rich import box
 from rich.console import Console
 from rich.table import Table
 
@@ -14,13 +15,14 @@ class TableVisitor(ModelVisitor):
     def __init__(self, console: Console) -> None:
         """Create the table."""
         self._console = console
-        self._table = Table()
+        self._table = Table(box=box.SIMPLE)
         self._table.add_column('#')
         self._table.add_column('State')
         self._table.add_column('Date')
         self._table.add_column('Starttime')
         self._table.add_column('Endtime')
         self._table.add_column('Title')
+        self._table.add_column('Main topic')
 
     @override
     def visit_session(self, session: Session) -> None:
@@ -31,6 +33,7 @@ class TableVisitor(ModelVisitor):
             str(session.start_time),
             str(session.start_time),
             str(session.end_time),
+            session.main_topic,
             session.title,
         )
 
