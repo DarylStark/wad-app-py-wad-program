@@ -1,5 +1,7 @@
 """Module with the WadProgramApp class."""
 
+from wad_app_py_wad_program.model import Session
+
 from collections.abc import Callable
 
 from .database import Database
@@ -43,3 +45,7 @@ class WadProgramApp:
             hook_speaker_list_progress=hook_speaker_list_progress,
         )
         self._database.save()
+
+    def get_sessions(self) -> list[Session]:
+        """Retrieve sessions from the database."""
+        return self._database.get_sessions()

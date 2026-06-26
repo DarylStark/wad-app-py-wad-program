@@ -1,25 +1,55 @@
 """Main entry point for the CLI."""
 
+from enum import Enum
+
 from rich.console import Console
 from rich.progress import Progress
-from typer import Context, Typer
+from typer import Context, Typer, Option
 
+from .console_visitor import DetailsVisitor, TableVisitor
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
+from .model import ModelVisitor, Session
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
+
+
+class OutputType(Enum):
+    """The types of possible output for `list`."""
+
+    TABLE = 'table'
+    DETAILS = 'details'
+
 
 app = Typer(no_args_is_help=True)
 console = Console()
 
 
 @app.command(
-    name='list', help='List the sessions', short_help='List the sessions'
+    name='list-sessions',
+    help='List the sessions',
+    short_help='List the sessions',
 )
-def list_sessions(ctx: Context) -> None:
+def list_sessions(
+    ctx: Context,
+    output_type: OutputType = Option(
+        default=OutputType.TABLE, help='How to output the data'
+    ),
+) -> None:
     """List sessions currently in the database."""
-    # TODO: Implement
-    pass
+    console = ctx.obj['console']
+    wad = ctx.obj['wad']
+    sessions: list[Session] = wad.get_sessions()
+
+    output_visitors = {
+        OutputType.TABLE: TableVisitor(console),
+        OutputType.DETAILS: DetailsVisitor(console),
+    }
+
+    visitor: ModelVisitor = output_visitors[output_type]
+    for session in sessions:
+        session.accept(visitor)
+    visitor.done()
 
 
 @app.command(

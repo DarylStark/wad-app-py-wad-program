@@ -1,9 +1,21 @@
 """The data model for the package."""
 
 from datetime import date, datetime
+from enum import Enum
 
 from pydantic import BaseModel, Field
-from enum import Enum
+
+from abc import ABC, abstractmethod
+
+
+class ModelVisitor(ABC):
+    @abstractmethod
+    def visit_session(self, session: Session) -> None:
+        """Visistor for a session."""
+
+    @abstractmethod
+    def done(self) -> None:
+        """When done with the visitor."""
 
 
 class SessionState(Enum):
@@ -34,6 +46,13 @@ class Session(BaseModel):
     topics: list[str] = Field(default_factory=list)
     speakers: list[Speaker] = Field(default_factory=list)
     state: SessionState = SessionState.ACTIVE
+
+    def accept(self, visitor: ModelVisitor) -> None:
+        """Accept a visitor.
+
+        Can be used to implement Session specific behavior
+        """
+        visitor.visit_session(self)
 
 
 class Speaker(BaseModel):
