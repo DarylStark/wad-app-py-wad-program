@@ -7,9 +7,17 @@ from rich.progress import Progress
 from typer import Context, Option, Typer
 
 from .console_visitor import DetailsVisitor, TableVisitor
+from .database_specifications import (
+    DescriptionContainsSpecification,
+    IdSpecification,
+    SessionCompositeSpecification,
+    TitleContainsSpecification,
+    StateSpecification,
+    AnyTextContainsSpecification,
+)
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
-from .model import ModelVisitor, Session
+from .model import ModelVisitor, Session, SessionState
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
 
@@ -35,11 +43,69 @@ def list_sessions(
     output_type: OutputType = Option(
         default=OutputType.TABLE, help='How to output the data'
     ),
+    title_text_i: list[str] = Option(
+        default=[], help='Filter: title contains text (case insensitive)'
+    ),
+    title_text: list[str] = Option(
+        default=[],
+        help='Filter: title contains text (case sensitive)',
+    ),
+    description_text_i: list[str] = Option(
+        default=[],
+        help='Filter: descriptions contains text (case insensitive)',
+    ),
+    description_text: list[str] = Option(
+        default=[],
+        help='Filter: description contains text (case sensitive)',
+    ),
+    text_i: list[str] = Option(
+        default=[], help='Filter: text contains text (case insensitive)'
+    ),
+    text: list[str] = Option(
+        default=[],
+        help='Filter: text contains text (case sensitive)',
+    ),
+    filter_id: int | None = Option(
+        default=None,
+        help='Filter: specific ID',
+    ),
+    state: SessionState | None = Option(
+        default=None,
+        help='Filter: specific state',
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
     wad = ctx.obj['wad']
-    sessions: list[Session] = wad.get_sessions()
+
+    spec = SessionCompositeSpecification()
+
+    # Configure all filters with their specifications
+    filters = {
+        'title_i': (title_text_i, TitleContainsSpecification, False),
+        'title': (title_text, TitleContainsSpecification, True),
+        'desc_i': (
+            description_text_i,
+            DescriptionContainsSpecification,
+            False,
+        ),
+        'desc': (description_text, DescriptionContainsSpecification, True),
+        'text': (text, AnyTextContainsSpecification, True),
+        'text_i': (text_i, AnyTextContainsSpecification, False),
+    }
+
+    # Apply all text filters
+    for texts, spec_class, case_sensitive in filters.values():
+        for text in texts:
+            spec.add_specification(spec_class(text, case_sensitive))
+
+    # Apply optional filters
+    if filter_id:
+        spec.add_specification(IdSpecification(filter_id))
+    if state:
+        spec.add_specification(StateSpecification(state))
+
+    sessions: list[Session] = wad.get_sessions(spec)
 
     output_visitors = {
         OutputType.TABLE: TableVisitor(console),

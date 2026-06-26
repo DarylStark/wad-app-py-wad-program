@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 
+from .database_specifications import SessionSpecification
 from .model import EventData, Session, SessionState, Speaker
 
 
@@ -13,9 +14,16 @@ class Database(ABC):
         """Set empty data object."""
         self._data: EventData = EventData(sessions=[], speakers=[])
 
-    def get_sessions(self) -> list[Session]:
+    def get_sessions(
+        self, spec: SessionSpecification | None = None
+    ) -> list[Session]:
         """Retrieve the sessions from the database."""
-        return self._data.sessions
+        sessions = [] if spec else self._data.sessions
+        if spec:
+            for session in self._data.sessions:
+                if spec.is_satisfied_by(session):
+                    sessions.append(session)
+        return sessions
 
     def get_speakers(self) -> list[Speaker]:
         """Retrieve the speakers from the database."""
@@ -40,10 +48,7 @@ class Database(ABC):
             )
         progress = 0
         for id, session in incoming_sessions_with_id.items():
-            if id in sessions_with_id:
-                sessions_with_id[id] = session
-                session.state = SessionState.ACTIVE
-            else:
+            if id not in sessions_with_id:
                 sessions_with_id[id] = session
                 session.state = SessionState.NEW
             progress += 1

@@ -16,6 +16,7 @@ class TableVisitor(ModelVisitor):
         self._console = console
         self._table = Table()
         self._table.add_column('#')
+        self._table.add_column('State')
         self._table.add_column('Date')
         self._table.add_column('Starttime')
         self._table.add_column('Endtime')
@@ -26,6 +27,7 @@ class TableVisitor(ModelVisitor):
         """Add a session to the table."""
         self._table.add_row(
             str(session.id),
+            session.state.value.capitalize(),
             str(session.start_time),
             str(session.start_time),
             str(session.end_time),
