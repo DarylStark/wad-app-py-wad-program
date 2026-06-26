@@ -1,8 +1,8 @@
 """Module with the WadProgramApp class."""
 
-from wad_app_py_wad_program.model import Session
-
 from collections.abc import Callable
+
+from wad_app_py_wad_program.model import Session
 
 from .database import Database
 from .program_retriever import ProgramRetriever

@@ -4,7 +4,7 @@ from enum import Enum
 
 from rich.console import Console
 from rich.progress import Progress
-from typer import Context, Typer, Option
+from typer import Context, Option, Typer
 
 from .console_visitor import DetailsVisitor, TableVisitor
 from .html_program_retriever import HtmlProgramRetriever
@@ -91,8 +91,8 @@ def update(
 def common_command_line_options(ctx: Context, json_filename: str) -> None:
     """Default callback for the command line options.
 
-    Will always be called before the correct command is called. This way, we can
-    setup a object that is used by all commands.
+    Will always be called before the correct command is called. This way, we
+    can setup a object that is used by all commands.
     """
     ctx.obj = {
         'console': console,

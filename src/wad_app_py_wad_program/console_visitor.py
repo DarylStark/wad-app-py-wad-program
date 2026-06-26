@@ -1,9 +1,11 @@
 """Module with a ModelVisitor for Console output."""
 
 from typing import override
-from .model import ModelVisitor, Session
+
 from rich.console import Console
 from rich.table import Table
+
+from .model import ModelVisitor, Session
 
 
 class TableVisitor(ModelVisitor):

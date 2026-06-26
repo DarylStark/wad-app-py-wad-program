@@ -1,7 +1,5 @@
 """Package with a Program Retriever that retrieves via HTML."""
 
-from enum import unique
-
 import re
 from collections.abc import Callable
 from datetime import date, datetime

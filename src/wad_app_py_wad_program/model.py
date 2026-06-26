@@ -1,14 +1,15 @@
 """The data model for the package."""
 
+from abc import ABC, abstractmethod
 from datetime import date, datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from abc import ABC, abstractmethod
-
 
 class ModelVisitor(ABC):
+    """Vistor for the model."""
+
     @abstractmethod
     def visit_session(self, session: Session) -> None:
         """Visistor for a session."""

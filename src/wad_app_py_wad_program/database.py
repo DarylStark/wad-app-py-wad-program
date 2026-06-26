@@ -1,9 +1,9 @@
 """Module with abstract classes for databases."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 
 from .model import EventData, Session, SessionState, Speaker
-from collections.abc import Callable
 
 
 class Database(ABC):
