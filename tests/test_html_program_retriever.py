@@ -21,4 +21,4 @@ def test_loading_sessions_from_html() -> None:
         )
     )
     data = html_retriever.retrieve_program()
-    assert len(data.sessions) == 0
+    assert len(data.sessions) == 7

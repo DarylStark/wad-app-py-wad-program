@@ -149,42 +149,42 @@ class HtmlProgramRetriever(ProgramRetriever):
 
         return page_session
 
-    def _get_sessions_for_day(self, day_element: Tag) -> list[Session]:
-        sessions = day_element.find_all(
+    def _get_unique_urls_from_schedule_page(
+        self, schedule_page_content: str
+    ) -> set[str]:
+        soup = BeautifulSoup(schedule_page_content, 'html.parser')
+        sessions_urls = soup.find_all(
             'a',
             href=lambda href: (
                 href and href.startswith('/world-congress/agenda/sessions/')
             ),
         )
-        unique_urls = {session.get('href', '') for session in sessions}
-        session_list: list[Session] = []
+        unique_urls = {
+            str(session_url.get('href', '')) for session_url in sessions_urls
+        }
+        return unique_urls
 
-        for url in unique_urls:
+    @override
+    def retrieve_program(self) -> EventData:
+        session_list: list[Session] = []
+        contents = self._page_loader.load_page(
+            'https://www.wearedevelopers.com/world-congress/agenda/schedule'
+        )
+
+        for url in self._get_unique_urls_from_schedule_page(contents):
             sess = self._get_session_from_session_page(
                 session_url=f'https://www.wearedevelopers.com{url}'
             )
             if sess:
                 session_list.append(sess)
 
-        return session_list
-
-    @override
-    def retrieve_program(self) -> EventData:
-        contents = self._page_loader.load_page(
-            'https://www.wearedevelopers.com/world-congress/agenda/schedule'
-        )
-        soup = BeautifulSoup(contents, 'html.parser')
-        days = soup.select('div[data-grid-panel]')
-        all_sessions: list[Session] = []
-        for day in days[0:1]:
-            sessions = self._get_sessions_for_day(day)
-            all_sessions.extend(sessions)
-
         # TODO: make this a method for `EventData`. Within the `Database` class
         # this is also used and the code is now duplicate.
         speakers: dict[str, Speaker] = {}
-        for session in sessions:
+        for session in session_list:
             for speaker in session.speakers:
                 obj = speakers.setdefault(speaker.name, speaker)
                 obj.sessions.append(session)
-        return EventData(sessions=sessions, speakers=list(speakers.values()))
+        return EventData(
+            sessions=session_list, speakers=list(speakers.values())
+        )
