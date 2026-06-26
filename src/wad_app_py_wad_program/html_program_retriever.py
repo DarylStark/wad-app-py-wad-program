@@ -1,6 +1,9 @@
 """Package with a Program Retriever that retrieves via HTML."""
 
+from enum import unique
+
 import re
+from collections.abc import Callable
 from datetime import date, datetime
 from typing import override
 
@@ -165,18 +168,30 @@ class HtmlProgramRetriever(ProgramRetriever):
         return unique_urls
 
     @override
-    def retrieve_program(self) -> EventData:
+    def retrieve_program(
+        self,
+        *,
+        hook_total: Callable[[int], None] | None = None,
+        hook_progress: Callable[[int], None] | None = None,
+    ) -> EventData:
         session_list: list[Session] = []
         contents = self._page_loader.load_page(
             'https://www.wearedevelopers.com/world-congress/agenda/schedule'
         )
 
-        for url in self._get_unique_urls_from_schedule_page(contents):
+        unique_urls = self._get_unique_urls_from_schedule_page(contents)
+
+        if hook_total:
+            hook_total(len(unique_urls))
+
+        for done, url in enumerate(unique_urls):
             sess = self._get_session_from_session_page(
                 session_url=f'https://www.wearedevelopers.com{url}'
             )
             if sess:
                 session_list.append(sess)
+            if hook_progress:
+                hook_progress(done + 1)
 
         # TODO: make this a method for `EventData`. Within the `Database` class
         # this is also used and the code is now duplicate.

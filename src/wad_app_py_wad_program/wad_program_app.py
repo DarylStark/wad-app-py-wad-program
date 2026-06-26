@@ -1,6 +1,6 @@
 """Module with the WadProgramApp class."""
 
-from rich.console import Console
+from collections.abc import Callable
 
 from .database import Database
 from .program_retriever import ProgramRetriever
@@ -19,13 +19,27 @@ class WadProgramApp:
         self._retriever = retriever
         self._database: Database = database
         self._database.load()
-        self._console = Console()
 
-    def update_database(self) -> None:
+    def update_database(
+        self,
+        *,
+        hook_retrieve_total: Callable[[int], None] | None = None,
+        hook_retrieve_progress: Callable[[int], None] | None = None,
+        hook_sync_total: Callable[[int], None] | None = None,
+        hook_sync_progress: Callable[[int], None] | None = None,
+        hook_speaker_list_total: Callable[[int], None] | None = None,
+        hook_speaker_list_progress: Callable[[int], None] | None = None,
+    ) -> None:
         """Update the database."""
-        data = self._retriever.retrieve_program()
-        self._console.print(
-            f'Retrieved {len(data.sessions)} sessions from the web.'
+        data = self._retriever.retrieve_program(
+            hook_total=hook_retrieve_total,
+            hook_progress=hook_retrieve_progress,
         )
-        self._database.sync(data)
+        self._database.sync(
+            data,
+            hook_sync_total=hook_sync_total,
+            hook_sync_progress=hook_sync_progress,
+            hook_speaker_list_total=hook_speaker_list_total,
+            hook_speaker_list_progress=hook_speaker_list_progress,
+        )
         self._database.save()
