@@ -175,8 +175,11 @@ class HtmlProgramRetriever(ProgramRetriever):
         )
         soup = BeautifulSoup(contents, 'html.parser')
         days = soup.select('div[data-grid-panel]')
-        for day in days:
+        all_sessions: list[Session] = []
+        for day in days[0:1]:
             sessions = self._get_sessions_for_day(day)
+            all_sessions.extend(sessions)
+
         # TODO: make this a method for `EventData`. Within the `Database` class
         # this is also used and the code is now duplicate.
         speakers: dict[str, Speaker] = {}

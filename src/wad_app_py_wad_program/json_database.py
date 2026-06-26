@@ -33,8 +33,9 @@ class JsonDatabase(Database):
     def save(self) -> None:
         """Save the data to the databae."""
         data_to_save = self._data.model_copy(deep=True)
-        for speaker in data_to_save.speakers:
-            speaker.sessions = []
+        for session in data_to_save.sessions:
+            for speaker in session.speakers:
+                speaker.sessions = []
         data_to_save.speakers = []
 
         Path(self._filename).write_text(
