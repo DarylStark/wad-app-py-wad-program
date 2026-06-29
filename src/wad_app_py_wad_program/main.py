@@ -24,10 +24,11 @@ from .database_specifications import (
     StateSpecification,
     TaglineContainsSpecification,
     TitleContainsSpecification,
+    InterestLevelSpecification
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
-from .model import Day, ModelVisitor, Session, SessionState
+from .model import Day, ModelVisitor, Session, SessionState, InterestLevel
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
 
@@ -131,6 +132,9 @@ def sessions(
     specific_day: Day | None = Option(
         default=None, help='Filter: sessions at a specific day'
     ),
+    interest_level: InterestLevel | None = Option(
+        default=None, help='Filter: specific interest level.'
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -205,6 +209,8 @@ def sessions(
         spec.add_specification(IdSpecification(filter_id))
     if state:
         spec.add_specification(StateSpecification(state))
+    if interest_level:
+        spec.add_specification(InterestLevelSpecification(interest_level))
 
     # Time filters
     if start_time_after:

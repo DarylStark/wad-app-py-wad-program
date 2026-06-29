@@ -33,6 +33,22 @@ class SessionState(Enum):
     REMOVED = 'removed'
 
 
+class InterestLevel(Enum):
+    """The interest for a session.
+
+    UNSPECIFIED: nothing specified yet.
+    NOT_INTERESTED: not interested in the session.
+    WATCH_LATER: watch after the conference on YouTube.
+    INTERESTED: want to watch this sessions.
+    ALTERNATIVE: might watch it if time is available.
+    """
+
+    UNSPECIFIED = 'unspecified'
+    NOT_INTERESTED = 'not_interested'
+    WATCH_LATER = 'watch_later'
+    INTERESTED = 'interested'
+    ALTERNATIVE = 'alternative'
+
 class Day(Enum):
     """Specific days.
 
@@ -68,6 +84,7 @@ class Session(BaseModel):
     topics: list[str] = Field(default_factory=list)
     speakers: list[Speaker] = Field(default_factory=list)
     state: SessionState = SessionState.ACTIVE
+    interest_level: InterestLevel = InterestLevel.UNSPECIFIED
 
     def accept(self, visitor: ModelVisitor) -> None:
         """Accept a visitor.

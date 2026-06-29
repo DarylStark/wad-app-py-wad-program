@@ -216,6 +216,18 @@ class SpecificDaySpecification(SessionSpecification):
         return obj.start_time.isoweekday() == self._day.iso_day_number
 
 
+class InterestLevelSpecification(SessionSpecification):
+    """Specification for sessions with a specific Interest level."""
+
+    def __init__(self, level: InterestLevel) -> None:
+        """Set the level to filter on."""
+        self._level = level
+
+    @override
+    def is_satisfied_by(self, obj: Session) -> bool:
+        return obj.interest_level == self._level
+
+
 class SpeakerSessionSpecification(SessionSpecification):
     """Specification for a session to filter on speaker.
 

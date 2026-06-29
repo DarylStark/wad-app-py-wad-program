@@ -19,6 +19,7 @@ class TableVisitor(ModelVisitor):
         self._table = Table(box=box.SIMPLE)
         self._table.add_column('#')
         self._table.add_column('State')
+        self._table.add_column('Interest')
         self._table.add_column('Day')
         self._table.add_column('Stage')
         self._table.add_column('Start')
@@ -35,6 +36,7 @@ class TableVisitor(ModelVisitor):
         self._table.add_row(
             str(session.id),
             session.state.value.capitalize(),
+            session.interest_level.value.capitalize(),
             session.stage,
             session.start_time.strftime('%a'),
             session.start_time.strftime('%H:%M'),
