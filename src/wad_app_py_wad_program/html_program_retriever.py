@@ -93,7 +93,6 @@ class HtmlProgramRetriever(ProgramRetriever):
                 main_topic=main_topic,
                 description=description,
                 stage=stage,
-                present_date=date_obj,
                 start_time=start_time,
                 end_time=end_time,
                 topics=topics,

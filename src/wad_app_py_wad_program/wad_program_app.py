@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 
-from wad_app_py_wad_program.model import Session
+from wad_app_py_wad_program.model import Session, Topic
 
 from .database import Database
 from .database_specifications import SessionSpecification, TopicSpecification

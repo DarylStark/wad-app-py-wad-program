@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import time
 from typing import override
 
-from .model import Day, Session, SessionState, Speaker, Topic
+from .model import Day, InterestLevel, Session, SessionState, Speaker, Topic
 
 
 class Specification[T](ABC):
@@ -191,6 +191,8 @@ class StartTimeAtOrAfterSpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
+        if not obj.start_time:
+            return False
         return self._start_time <= obj.start_time.time()
 
 
@@ -203,6 +205,8 @@ class EndTimeAtOrBeforeSpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
+        if not obj.end_time:
+            return False
         return obj.end_time.time() <= self._end_time
 
 
@@ -215,6 +219,8 @@ class SpecificDaySpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
+        if not obj.start_time:
+            return False
         return obj.start_time.isoweekday() == self._day.iso_day_number
 
 
@@ -260,7 +266,7 @@ class SpeakerAnyTextSpecification(SpeakerSpecification):
         self._case_sensitive = case_sensitive
 
     @override
-    def is_satisfied_by(self, obj: Speaker) -> None:
+    def is_satisfied_by(self, obj: Speaker) -> bool:
         found: list[bool] = []
 
         # Search in "normal" text fields
@@ -315,6 +321,7 @@ class NameContainsSpecification(SpeakerSpecification):
         if self._case_sensitive:
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)
+
 
 class TopicNameContainsSpecification(TopicSpecification):
     """Specification for topics that contains text in the name."""

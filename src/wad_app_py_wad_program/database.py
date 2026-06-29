@@ -29,7 +29,9 @@ class Database(ABC):
         """Retrieve the speakers from the database."""
         return self._data.speakers
 
-    def get_topics(self, spec: TopicSpecification | None = None) -> list[Topic]:
+    def get_topics(
+        self, spec: TopicSpecification | None = None
+    ) -> list[Topic]:
         """Retrieve the speakers from the database."""
         topics = [] if spec else self._data.topics
         if spec:

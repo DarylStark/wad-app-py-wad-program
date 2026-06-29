@@ -7,12 +7,13 @@ from rich.console import Console
 from rich.progress import Progress
 from typer import Context, Option, Typer
 
-from .console_visitor import DetailsVisitor, TableVisitor, DataType
+from .console_visitor import DataType, DetailsVisitor, TableVisitor
 from .database_specifications import (
     AnyTextContainsSpecification,
     DescriptionContainsSpecification,
     EndTimeAtOrBeforeSpecification,
     IdSpecification,
+    InterestLevelSpecification,
     MainTopicSpecification,
     NameContainsSpecification,
     SessionCompositeSpecification,
@@ -24,13 +25,12 @@ from .database_specifications import (
     StateSpecification,
     TaglineContainsSpecification,
     TitleContainsSpecification,
-    InterestLevelSpecification,
-    NameContainsSpecification,
-    TopicCompositeSpecification
+    TopicCompositeSpecification,
+    TopicNameContainsSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
-from .model import Day, ModelVisitor, Session, SessionState, InterestLevel
+from .model import Day, InterestLevel, ModelVisitor, Session, SessionState
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
 
@@ -48,7 +48,9 @@ console = Console()
 
 @app.command(
     name='sessions',
-    help='Manage sessions. This will list all sessions or sessions that satisfy the given filters. You can optionally perform actions on the given sessions.',
+    help='Manage sessions. This will list all sessions or sessions that '
+    'satisfy the given filters. You can optionally perform actions on '
+    'the given sessions.',
     short_help='Manager the sessions',
 )
 def sessions(
@@ -125,11 +127,13 @@ def sessions(
     ),
     start_time_after: str | None = Option(
         default=None,
-        help='Filter: session starts at or after a specific time (format: HH:MM)',
+        help='Filter: session starts at or after a specific time '
+        '(format: HH:MM)',
     ),
     end_time_before: str | None = Option(
         default=None,
-        help='Filter: session end at or before a specific time (format: HH:MM)',
+        help='Filter: session end at or before a specific time '
+        '(format: HH:MM)',
     ),
     specific_day: Day | None = Option(
         default=None, help='Filter: sessions at a specific day'
@@ -137,8 +141,12 @@ def sessions(
     interest_level: InterestLevel | None = Option(
         default=None, help='Filter: specific interest level.'
     ),
-    set_state: SessionState | None = Option(default=None, help='Action: Set session state'),
-    set_interest_level: InterestLevel | None = Option(default=None, help='Action: Set interest level')
+    set_state: SessionState | None = Option(
+        default=None, help='Action: Set session state'
+    ),
+    set_interest_level: InterestLevel | None = Option(
+        default=None, help='Action: Set interest level'
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -253,6 +261,7 @@ def sessions(
         session.accept(visitor)
     visitor.done()
 
+
 @app.command(
     name='topics',
     help='Show topics.',
@@ -279,8 +288,8 @@ def topics(
 
     # Configure all filters with their specifications
     filters = {
-        'name_i': (name_text_i, NameContainsSpecification, False),
-        'name': (name_text, NameContainsSpecification, True),
+        'name_i': (name_text_i, TopicNameContainsSpecification, False),
+        'name': (name_text, TopicNameContainsSpecification, True),
     }
 
     # Apply all text filters

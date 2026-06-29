@@ -1,7 +1,7 @@
 """The data model for the package."""
 
 from abc import ABC, abstractmethod
-from datetime import date, datetime
+from datetime import datetime, timedelta
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -52,6 +52,7 @@ class InterestLevel(Enum):
     INTERESTED = 'interested'
     ALTERNATIVE = 'alternative'
 
+
 class Day(Enum):
     """Specific days.
 
@@ -81,7 +82,6 @@ class Session(BaseModel):
     main_topic: str
     description: str
     stage: str
-    present_date: date | None = None
     start_time: datetime | None = None
     end_time: datetime | None = None
     topics: list[str] = Field(default_factory=list)
@@ -97,9 +97,11 @@ class Session(BaseModel):
         visitor.visit_session(self)
 
     @property
-    def duration(self) -> None:
+    def duration(self) -> timedelta:
         """Return the duration of the sessions."""
-        return self.end_time - self.start_time
+        if self.end_time and self.start_time:
+            return self.end_time - self.start_time
+        return timedelta()
 
 
 class Speaker(BaseModel):
