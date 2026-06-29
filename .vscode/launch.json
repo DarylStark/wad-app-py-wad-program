@@ -21,7 +21,9 @@
             "module": "wad_app_py_wad_program",
             "args": [
                 "./test_database.json",
-                "sessions"
+                "sessions",
+                "--description-text",
+                "python"
             ]
         },
         {

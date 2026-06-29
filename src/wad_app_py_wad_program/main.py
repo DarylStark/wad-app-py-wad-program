@@ -7,30 +7,34 @@ from rich.console import Console
 from rich.progress import Progress
 from typer import Context, Option, Typer
 
+from wad_app_py_wad_program.cli_builders import (
+    build_text_specification,
+)
+from wad_app_py_wad_program.cli_filters import (
+    cli_session_text_filters,
+    cli_speaker_text_filters,
+    cli_topics_text_filters,
+)
+
 from .console_visitor import DataType, DetailsVisitor, TableVisitor
 from .database_specifications import (
-    AnyTextContainsSpecification,
-    DescriptionContainsSpecification,
     EndTimeAtOrBeforeSpecification,
     IdSpecification,
     InterestLevelSpecification,
-    MainTopicSpecification,
-    NameContainsSpecification,
-    SessionCompositeSpecification,
-    SpeakerAnyTextSpecification,
     SpeakerSessionSpecification,
     SpecificDaySpecification,
-    StageSpecification,
     StartTimeAtOrAfterSpecification,
     StateSpecification,
-    TaglineContainsSpecification,
-    TitleContainsSpecification,
-    TopicCompositeSpecification,
-    TopicNameContainsSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
-from .model import Day, InterestLevel, ModelVisitor, Session, SessionState
+from .model import (
+    Day,
+    InterestLevel,
+    ModelVisitor,
+    Session,
+    SessionState,
+)
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
 
@@ -73,20 +77,12 @@ def sessions(
         default=[],
         help='Filter: description contains text (case sensitive)',
     ),
-    text_i: list[str] = Option(
-        default=[], help='Filter: text contains text (case insensitive)'
+    any_text_i: list[str] = Option(
+        default=[], help='Filter: any text contains text (case insensitive)'
     ),
-    text: list[str] = Option(
+    any_text: list[str] = Option(
         default=[],
-        help='Filter: text contains text (case sensitive)',
-    ),
-    filter_id: int | None = Option(
-        default=None,
-        help='Filter: specific ID',
-    ),
-    state: SessionState | None = Option(
-        default=None,
-        help='Filter: specific state',
+        help='Filter: any text contains text (case sensitive)',
     ),
     main_topic_text_i: list[str] = Option(
         default=[], help='Filter: main topic contains text (case insensitive)'
@@ -95,10 +91,25 @@ def sessions(
         default=[],
         help='Filter: main topic contains text (case sensitive)',
     ),
-    speaker_text_i: list[str] = Option(
+    stage_text_i: list[str] = Option(
+        default=[], help='Filter: stage contains text (case insensitive)'
+    ),
+    stage_text: list[str] = Option(
+        default=[],
+        help='Filter: stage contains text (case sensitive)',
+    ),
+    topic_text_i: list[str] = Option(
+        default=[],
+        help='Filter: one of the topics contains text (case insensitive)',
+    ),
+    topic_text: list[str] = Option(
+        default=[],
+        help='Filter: one of the topics contains text (case sensitive)',
+    ),
+    speaker_any_text_i: list[str] = Option(
         default=[], help='Filter: speaker contains text (case insensitive)'
     ),
-    speaker_text: list[str] = Option(
+    speaker_any_text: list[str] = Option(
         default=[],
         help='Filter: speaker contains contains text (case sensitive)',
     ),
@@ -116,14 +127,23 @@ def sessions(
     ),
     speaker_name_text: list[str] = Option(
         default=[],
+        help='Filter: speaker job contains contains text (case sensitive)',
+    ),
+    speaker_job_text_i: list[str] = Option(
+        default=[],
+        help='Filter: speaker job contains text (case insensitive)',
+    ),
+    speaker_job_text: list[str] = Option(
+        default=[],
         help='Filter: speaker name contains contains text (case sensitive)',
     ),
-    stage_text_i: list[str] = Option(
-        default=[], help='Filter: stage contains text (case insensitive)'
+    filter_id: int | None = Option(
+        default=None,
+        help='Filter: specific ID',
     ),
-    stage_text: list[str] = Option(
-        default=[],
-        help='Filter: stage contains text (case sensitive)',
+    state: SessionState | None = Option(
+        default=None,
+        help='Filter: specific state',
     ),
     start_time_after: str | None = Option(
         default=None,
@@ -152,69 +172,11 @@ def sessions(
     console = ctx.obj['console']
     wad = ctx.obj['wad']
 
-    spec = SessionCompositeSpecification()
-
-    # Configure all filters with their specifications
-    filters = {
-        'title_i': (title_text_i, TitleContainsSpecification, False),
-        'title': (title_text, TitleContainsSpecification, True),
-        'desc_i': (
-            description_text_i,
-            DescriptionContainsSpecification,
-            False,
-        ),
-        'desc': (description_text, DescriptionContainsSpecification, True),
-        'text': (text, AnyTextContainsSpecification, True),
-        'text_i': (text_i, AnyTextContainsSpecification, False),
-        'main_topic_text_i': (
-            main_topic_text_i,
-            MainTopicSpecification,
-            False,
-        ),
-        'main_topic_text': (main_topic_text, MainTopicSpecification, True),
-        'stage_text': (stage_text, StageSpecification, True),
-        'stage_text_i': (stage_text_i, StageSpecification, False),
-    }
-
-    # Apply all text filters
-    for texts, spec_class, case_sensitive in filters.values():
-        for input_text in texts:
-            spec.add_specification(spec_class(input_text, case_sensitive))
-
-    # Filter for Speakers
-    speaker_filters = {
-        'speaker_text': (speaker_text, SpeakerAnyTextSpecification, True),
-        'speaker_text_i': (speaker_text_i, SpeakerAnyTextSpecification, False),
-        'speaker_tagline_text': (
-            speaker_tagline_text,
-            TaglineContainsSpecification,
-            True,
-        ),
-        'speaker_tagline_text_i': (
-            speaker_tagline_text_i,
-            TaglineContainsSpecification,
-            False,
-        ),
-        'speaker_name_text': (
-            speaker_name_text,
-            NameContainsSpecification,
-            True,
-        ),
-        'speaker_name_text_i': (
-            speaker_name_text_i,
-            NameContainsSpecification,
-            False,
-        ),
-    }
-
-    # Apply text filters for speakers
-    for texts, spec_class, case_sensitive in speaker_filters.values():
-        for input_text in texts:
-            spec.add_specification(
-                SpeakerSessionSpecification(
-                    spec_class(input_text, case_sensitive)
-                )
-            )
+    spec = build_text_specification(cli_session_text_filters, ctx.params)
+    speaker_spec = build_text_specification(
+        cli_speaker_text_filters, ctx.params
+    )
+    spec.add_specification(SpeakerSessionSpecification(speaker_spec))
 
     # Apply optional filters
     if filter_id:
@@ -284,19 +246,7 @@ def topics(
     console = ctx.obj['console']
     wad = ctx.obj['wad']
 
-    spec = TopicCompositeSpecification()
-
-    # Configure all filters with their specifications
-    filters = {
-        'name_i': (name_text_i, TopicNameContainsSpecification, False),
-        'name': (name_text, TopicNameContainsSpecification, True),
-    }
-
-    # Apply all text filters
-    for texts, spec_class, case_sensitive in filters.values():
-        for input_text in texts:
-            spec.add_specification(spec_class(input_text, case_sensitive))
-
+    spec = build_text_specification(cli_topics_text_filters, ctx.params)
     topics = wad.get_topics(spec)
 
     # Generate output
