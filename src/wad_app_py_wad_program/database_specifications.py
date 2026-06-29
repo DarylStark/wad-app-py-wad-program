@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import override
 
-from .model import Session, SessionState, Speaker
+from .model import Session, SessionState, Speaker, Day
 from datetime import time
 
 
@@ -198,6 +198,17 @@ class EndTimeAtOrBeforeSpecification(SessionSpecification):
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
         return obj.end_time.time() <= self._end_time
+
+class SpecificDaySpecification(SessionSpecification):
+    """Specification for sessions at a specific day."""
+
+    def __init__(self, day: Day) -> None:
+        """Set the day to filter on."""
+        self._day = day
+
+    @override
+    def is_satisfied_by(self, obj: Session) -> bool:
+        return obj.start_time.isoweekday() == self._day.iso_day_number
 
 class SpeakerSessionSpecification(SessionSpecification):
     """Specification for a session to filter on speaker.

@@ -32,6 +32,25 @@ class SessionState(Enum):
     ACTIVE = 'active'
     REMOVED = 'removed'
 
+class Day(Enum):
+    """Specific days.
+
+    Only used by filters.
+    """
+
+    WED = 'wed'
+    THU = 'thu'
+    FRI = 'fri'
+
+    @property
+    def iso_day_number(self) -> int:
+        """Convert the given date to a ISO number."""
+        if self == Day.WED:
+            return 3 
+        elif self == Day.THU:
+            return 4
+        return 5
+
 
 class Session(BaseModel):
     """Model for a Session."""

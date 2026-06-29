@@ -22,10 +22,11 @@ from .database_specifications import (
     StageSpecification,
     StartTimeAtOrAfterSpecification,
     EndTimeAtOrBeforeSpecification,
+    SpecificDaySpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
-from .model import ModelVisitor, Session, SessionState
+from .model import ModelVisitor, Session, SessionState, Day
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
 from datetime import time, datetime
@@ -128,6 +129,10 @@ def list_sessions(
         default=None,
         help='Filter: session end at or before a specific time (format: HH:MM)'
     ),
+    specific_day: Day | None = Option(
+        default=None,
+        help='Filter: sessions at a specific day'
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -194,6 +199,8 @@ def list_sessions(
     if end_time_before:
         end_time_object = datetime.strptime(end_time_before, '%H:%M').time()
         spec.add_specification(EndTimeAtOrBeforeSpecification(end_time_object))
+    if specific_day:
+        spec.add_specification(SpecificDaySpecification(specific_day))
 
     # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)
