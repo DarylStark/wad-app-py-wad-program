@@ -55,6 +55,7 @@ class Day(Enum):
 class Session(BaseModel):
     """Model for a Session."""
 
+    url: str
     id: int
     title: str
     main_topic: str

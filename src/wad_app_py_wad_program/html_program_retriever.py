@@ -98,6 +98,7 @@ class HtmlProgramRetriever(ProgramRetriever):
                 end_time=end_time,
                 topics=topics,
                 speakers=[],
+                url=session_url,
             )
 
             # Retrieve the speakers
