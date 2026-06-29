@@ -25,6 +25,7 @@ class TableVisitor(ModelVisitor):
         self._table.add_column('Stage')
         self._table.add_column('Start')
         self._table.add_column('End')
+        self._table.add_column('Min')
         self._table.add_column('Title')
         self._table.add_column('Main topic')
         self._table.add_column('Topics')
@@ -40,6 +41,7 @@ class TableVisitor(ModelVisitor):
             session.start_time.strftime('%a'),
             session.start_time.strftime('%H:%M'),
             session.end_time.strftime('%H:%M'),
+            f'{session.duration.seconds / 60:.0f}',
             session.title,
             session.main_topic,
             ', '.join(session.topics),
@@ -63,7 +65,7 @@ class DetailsVisitor(ModelVisitor):
     def visit_session(self, session: Session) -> None:
         """Add a session to the table."""
         header = f'[b][yellow]{session.title}[/yellow][/b] ([green]{session.main_topic}[/]) - {session.state.value.capitalize()}\n'
-        header += f'[bright_black][b]{session.start_time.strftime("%A")}[/b], from [b]{session.start_time.strftime("%H:%M")}[/b] till [b]{session.end_time.strftime("%H:%M")}[/b] at [b]{session.stage}[/b][/]\n'
+        header += f'[bright_black][b]{session.start_time.strftime("%A")}[/b], from [b]{session.start_time.strftime("%H:%M")}[/b] till [b]{session.end_time.strftime("%H:%M")}[/b] at [b]{session.stage}[/b][/] ({session.duration.seconds / 60:.0f} minutes)\n'
 
         text = session.description
 

@@ -75,6 +75,11 @@ class Session(BaseModel):
         """
         visitor.visit_session(self)
 
+    @property
+    def duration(self) -> None:
+        """Return the duration of the sessions."""
+        return self.end_time - self.start_time
+
 
 class Speaker(BaseModel):
     """Model for a Speaker."""

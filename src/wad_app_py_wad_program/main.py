@@ -44,11 +44,11 @@ console = Console()
 
 
 @app.command(
-    name='list-sessions',
-    help='List the sessions',
-    short_help='List the sessions',
+    name='sessions',
+    help='Manage sessions. This will list all sessions or sessions that satisfy the given filters. You can optionally perform actions on the given sessions.',
+    short_help='Manager the sessions',
 )
-def list_sessions(
+def sessions(
     ctx: Context,
     output_type: OutputType = Option(
         default=OutputType.TABLE, help='How to output the data'
