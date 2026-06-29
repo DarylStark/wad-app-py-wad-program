@@ -15,8 +15,8 @@ from wad_app_py_wad_program.cli_filters import (
     cli_session_equality_filters,
     cli_session_text_filters,
     cli_speaker_text_filters,
-    cli_topics_text_filters,
     cli_topics_equality_filters,
+    cli_topics_text_filters,
 )
 
 from .console_visitor import DataType, DetailsVisitor, TableVisitor
@@ -24,7 +24,6 @@ from .database_specifications import (
     EndTimeAtOrBeforeSpecification,
     SessionCompositeSpecification,
     SpeakerSessionSpecification,
-    SpecificDaySpecification,
     StartTimeAtOrAfterSpecification,
     TopicCompositeSpecification,
 )

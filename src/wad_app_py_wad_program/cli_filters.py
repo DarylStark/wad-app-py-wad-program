@@ -11,12 +11,12 @@ from wad_app_py_wad_program.database_specifications import (
     TopicTextContainsSpecification,
 )
 from wad_app_py_wad_program.model import (
+    Day,
     InterestLevel,
     Session,
     SessionState,
     Speaker,
     Topic,
-    Day,
 )
 
 cli_session_text_filters: TextContainsSpecBuildDict[Session] = {

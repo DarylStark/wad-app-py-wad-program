@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import time
 from typing import Any, override
 
-from .model import Day, Session, Speaker, Topic
+from .model import Session, Speaker, Topic
 
 
 class Specification[T](ABC):
@@ -69,7 +69,7 @@ class TextContainsSpecification[T](Specification[T]):
 class FieldIsEqualTooSpecification[T](Specification[T]):
     """Specification to cehck if a specific field is equal to a value."""
 
-    def __init__(self, value: Any, field: str, expected_type: type) -> None:
+    def __init__(self, value: Any, field: str, expected_type: type) -> None:  # noqa: ANN401
         """Set default values."""
         self._value = value
         self._field = field
@@ -117,20 +117,6 @@ class EndTimeAtOrBeforeSpecification(SessionSpecification):
         if not obj.end_time:
             return False
         return obj.end_time.time() <= self._end_time
-
-
-class SpecificDaySpecification(SessionSpecification):
-    """Specification for sessions at a specific day."""
-
-    def __init__(self, day: Day) -> None:
-        """Set the day to filter on."""
-        self._day = day
-
-    @override
-    def is_satisfied_by(self, obj: Session) -> bool:
-        if not obj.start_time:
-            return False
-        return obj.start_time.isoweekday() == self._day.iso_day_number
 
 
 class SpeakerSessionSpecification(SessionSpecification):
