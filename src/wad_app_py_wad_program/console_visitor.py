@@ -78,7 +78,7 @@ class TableVisitor(ConsoleVisitor):
             color = 'green'
         return (
             f'[{color}]'
-            '{interest_level.value.replace("_", " ").capitalize()}[/{color}]'
+            f'{interest_level.value.replace("_", " ").capitalize()}[/{color}]'
         )
 
     @override
