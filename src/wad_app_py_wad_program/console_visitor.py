@@ -7,7 +7,7 @@ from rich.console import Console, Group
 from rich.panel import Panel
 from rich.table import Table
 
-from .model import ModelVisitor, Session
+from .model import ModelVisitor, Session, SessionState, InterestLevel
 
 
 class TableVisitor(ModelVisitor):
@@ -15,6 +15,8 @@ class TableVisitor(ModelVisitor):
 
     def __init__(self, console: Console) -> None:
         """Create the table."""
+        self._session_count = 0
+
         self._console = console
         self._table = Table(box=box.SIMPLE)
         self._table.add_column('#')
@@ -30,13 +32,33 @@ class TableVisitor(ModelVisitor):
         self._table.add_column('Topics')
         self._table.add_column('Speakers')
 
+    def _get_state_str(self, state: SessionState) -> str:
+        color = 'yellow'
+        if state == SessionState.ACTIVE:
+            color = 'green'
+        elif state == SessionState.REMOVED:
+            color = 'bright_black'
+        return f'[{color}]{state.value.capitalize()}[/{color}]'
+
+    def _get_interest_level_str(self, interest_level: InterestLevel) -> str:
+        color = 'red'
+        if interest_level == InterestLevel.NOT_INTERESTED:
+            color = 'bright_black'
+        elif interest_level == InterestLevel.WATCH_LATER:
+            color = 'blue'
+        elif interest_level == InterestLevel.ALTERNATIVE:
+            color = 'yellow'
+        elif interest_level == InterestLevel.INTERESTED:
+            color = 'green'
+        return f'[{color}]{interest_level.value.replace('_', ' ').capitalize()}[/{color}]'
+
     @override
     def visit_session(self, session: Session) -> None:
         """Add a session to the table."""
         self._table.add_row(
             str(session.id),
-            session.state.value.capitalize(),
-            session.interest_level.value.replace('_', ' ').capitalize(),
+            self._get_state_str(session.state),
+            self._get_interest_level_str(session.interest_level),
             session.stage,
             session.start_time.strftime('%a'),
             session.start_time.strftime('%H:%M'),
@@ -47,11 +69,16 @@ class TableVisitor(ModelVisitor):
             ', '.join(session.topics),
             ', '.join([speaker.name for speaker in session.speakers]),
         )
+        self._session_count += 1
 
     @override
     def done(self) -> None:
         """Print the table."""
-        self._console.print(self._table)
+        if self._session_count:
+            self._console.print(f'\n  [green]Found [b]{self._session_count}[/b] sessions that match your current filter[/green]')
+            self._console.print(self._table)
+        else:
+            self._console.print('[yellow]There were no sessions for your given filter.[/yellow]')
 
 
 class DetailsVisitor(ModelVisitor):

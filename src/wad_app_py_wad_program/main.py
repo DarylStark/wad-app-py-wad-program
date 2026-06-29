@@ -237,8 +237,8 @@ def sessions(
             if set_interest_level:
                 session.interest_level = set_interest_level
 
-    # Save the database
-    wad.save_database()
+        # Save the database
+        wad.save_database()
 
     # Generate output
     output_visitors = {
