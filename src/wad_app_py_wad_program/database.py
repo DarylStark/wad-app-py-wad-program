@@ -63,6 +63,9 @@ class Database(ABC):
 
         # Update the sessions
         self._data.sessions = list(sessions_with_id.values())
+        
+        # Sort on startdate
+        self._data.sessions.sort(key=lambda session: session.start_time)
 
     def _update_speaker_list(
         self,
