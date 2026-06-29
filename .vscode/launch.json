@@ -21,7 +21,7 @@
             "module": "wad_app_py_wad_program",
             "args": [
                 "./test_database.json",
-                "list-sessions"
+                "sessions"
             ]
         },
         {
@@ -31,7 +31,7 @@
             "module": "wad_app_py_wad_program",
             "args": [
                 "./test_database.json",
-                "list-sessions",
+                "sessions",
                 "--output-type=details"
             ]
         }
