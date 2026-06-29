@@ -15,6 +15,10 @@ class ModelVisitor(ABC):
         """Visistor for a session."""
 
     @abstractmethod
+    def visit_topic(self, topic: Topic) -> None:
+        """Visistor for a topic."""
+
+    @abstractmethod
     def done(self) -> None:
         """When done with the visitor."""
 
@@ -113,6 +117,13 @@ class Topic(BaseModel):
 
     name: str
     is_main_topic: bool = False
+
+    def accept(self, visitor: ModelVisitor) -> None:
+        """Accept a visitor.
+
+        Can be used to implement Topic specific behavior
+        """
+        visitor.visit_topic(self)
 
 
 class EventData(BaseModel):

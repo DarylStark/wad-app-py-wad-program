@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 
-from .database_specifications import SessionSpecification
+from .database_specifications import SessionSpecification, TopicSpecification
 from .model import EventData, Session, SessionState, Speaker, Topic
 
 
@@ -29,9 +29,14 @@ class Database(ABC):
         """Retrieve the speakers from the database."""
         return self._data.speakers
 
-    def get_topics(self) -> list[Topic]:
+    def get_topics(self, spec: TopicSpecification | None = None) -> list[Topic]:
         """Retrieve the speakers from the database."""
-        return self._data.topics
+        topics = [] if spec else self._data.topics
+        if spec:
+            for topic in self._data.topics:
+                if spec.is_satisfied_by(topic):
+                    topics.append(topic)
+        return topics
 
     def _sync_sessions(
         self,
@@ -102,6 +107,7 @@ class Database(ABC):
             for topic in session_topics:
                 topics.setdefault(topic, Topic(name=topic))
         self._data.topics = list(topics.values())
+        self._data.topics.sort(key=lambda topic: topic.name.lower())
 
     def sync(
         self,

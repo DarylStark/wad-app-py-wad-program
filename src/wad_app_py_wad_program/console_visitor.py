@@ -9,28 +9,39 @@ from rich.table import Table
 
 from .model import ModelVisitor, Session, SessionState, InterestLevel
 
+from enum import Enum
+
+class DataType(Enum):
+    SESSIONS = 'sessions'
+    TOPICS = 'topics'
 
 class TableVisitor(ModelVisitor):
     """Output sessions to a table."""
 
-    def __init__(self, console: Console) -> None:
+    def __init__(self, console: Console, data_type: DataType) -> None:
         """Create the table."""
-        self._session_count = 0
+        self._item_count = 0
 
         self._console = console
+
         self._table = Table(box=box.SIMPLE)
-        self._table.add_column('#')
-        self._table.add_column('State')
-        self._table.add_column('Interest')
-        self._table.add_column('Day')
-        self._table.add_column('Stage')
-        self._table.add_column('Start')
-        self._table.add_column('End')
-        self._table.add_column('Min')
-        self._table.add_column('Title')
-        self._table.add_column('Main topic')
-        self._table.add_column('Topics')
-        self._table.add_column('Speakers')
+
+        if data_type == DataType.SESSIONS:
+            self._table.add_column('#')
+            self._table.add_column('State')
+            self._table.add_column('Interest')
+            self._table.add_column('Day')
+            self._table.add_column('Stage')
+            self._table.add_column('Start')
+            self._table.add_column('End')
+            self._table.add_column('Min')
+            self._table.add_column('Title')
+            self._table.add_column('Main topic')
+            self._table.add_column('Topics')
+            self._table.add_column('Speakers')
+        elif data_type == DataType.TOPICS:
+            self._table.add_column('Name')
+            self._table.add_column('Is main topic')
 
     def _get_state_str(self, state: SessionState) -> str:
         color = 'yellow'
@@ -69,13 +80,22 @@ class TableVisitor(ModelVisitor):
             ', '.join(session.topics),
             ', '.join([speaker.name for speaker in session.speakers]),
         )
-        self._session_count += 1
+        self._item_count += 1
+
+    @override
+    def visit_topic(self, topic: Topic) -> None:
+        """Add a topic to the table."""
+        self._table.add_row(
+            topic.name,
+            'Yes' if topic.is_main_topic else 'No'
+        )
+        self._item_count += 1
 
     @override
     def done(self) -> None:
         """Print the table."""
-        if self._session_count:
-            self._console.print(f'\n  [green]Found [b]{self._session_count}[/b] sessions that match your current filter[/green]')
+        if self._item_count:
+            self._console.print(f'\n  [green]Found [b]{self._item_count}[/b] sessions that match your current filter[/green]')
             self._console.print(self._table)
         else:
             self._console.print('[yellow]There were no sessions for your given filter.[/yellow]')
@@ -108,6 +128,11 @@ class DetailsVisitor(ModelVisitor):
             Group(header, text, '\n', footer, '\n', '\n\n\n'.join(speakers))
         )
         self._console.print(panel)
+
+    @override
+    def visit_topic(self, topic: Topic) -> None:
+        """Add a topic to the table."""
+        pass
 
     @override
     def done(self) -> None:

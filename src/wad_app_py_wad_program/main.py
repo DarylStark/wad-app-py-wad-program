@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.progress import Progress
 from typer import Context, Option, Typer
 
-from .console_visitor import DetailsVisitor, TableVisitor
+from .console_visitor import DetailsVisitor, TableVisitor, DataType
 from .database_specifications import (
     AnyTextContainsSpecification,
     DescriptionContainsSpecification,
@@ -24,7 +24,9 @@ from .database_specifications import (
     StateSpecification,
     TaglineContainsSpecification,
     TitleContainsSpecification,
-    InterestLevelSpecification
+    InterestLevelSpecification,
+    NameContainsSpecification,
+    TopicCompositeSpecification
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
@@ -242,7 +244,7 @@ def sessions(
 
     # Generate output
     output_visitors = {
-        OutputType.TABLE: TableVisitor(console),
+        OutputType.TABLE: TableVisitor(console, DataType.SESSIONS),
         OutputType.DETAILS: DetailsVisitor(console),
     }
 
@@ -256,14 +258,48 @@ def sessions(
     help='Show topics.',
     short_help='Show topics.',
 )
-def topics(ctx: Context) -> None:
+def topics(
+    ctx: Context,
+    output_type: OutputType = Option(
+        default=OutputType.TABLE, help='How to output the data'
+    ),
+    name_text_i: list[str] = Option(
+        default=[], help='Filter: name contains text (case insensitive)'
+    ),
+    name_text: list[str] = Option(
+        default=[],
+        help='Filter: name contains text (case sensitive)',
+    ),
+) -> None:
     """Show topics in the database."""
     console = ctx.obj['console']
     wad = ctx.obj['wad']
 
-    topics = wad.get_topics()
+    spec = TopicCompositeSpecification()
 
-    print(topics)
+    # Configure all filters with their specifications
+    filters = {
+        'name_i': (name_text_i, NameContainsSpecification, False),
+        'name': (name_text, NameContainsSpecification, True),
+    }
+
+    # Apply all text filters
+    for texts, spec_class, case_sensitive in filters.values():
+        for input_text in texts:
+            spec.add_specification(spec_class(input_text, case_sensitive))
+
+    topics = wad.get_topics(spec)
+
+    # Generate output
+    output_visitors = {
+        OutputType.TABLE: TableVisitor(console, DataType.TOPICS),
+        OutputType.DETAILS: DetailsVisitor(console),
+    }
+
+    visitor: ModelVisitor = output_visitors[output_type]
+    for topic in topics:
+        topic.accept(visitor)
+    visitor.done()
 
 
 @app.command(

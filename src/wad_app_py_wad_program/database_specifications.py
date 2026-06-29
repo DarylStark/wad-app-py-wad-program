@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import time
 from typing import override
 
-from .model import Day, Session, SessionState, Speaker
+from .model import Day, Session, SessionState, Speaker, Topic
 
 
 class Specification[T](ABC):
@@ -38,6 +38,8 @@ SessionSpecification = Specification[Session]
 SessionCompositeSpecification = CompositeSpecification[Session]
 SpeakerSpecification = Specification[Speaker]
 SpeakerCompositeSpecification = CompositeSpecification[Speaker]
+TopicSpecification = Specification[Topic]
+TopicCompositeSpecification = CompositeSpecification[Topic]
 
 
 class TitleContainsSpecification(SessionSpecification):
@@ -310,6 +312,26 @@ class NameContainsSpecification(SpeakerSpecification):
 
     @override
     def is_satisfied_by(self, obj: Speaker) -> bool:
+        if self._case_sensitive:
+            return self._is_satisfied_by_case_sensitive(obj)
+        return self._is_satisfied_by_case_insensitive(obj)
+
+class TopicNameContainsSpecification(TopicSpecification):
+    """Specification for topics that contains text in the name."""
+
+    def __init__(self, text: str, case_sensitive: bool = True) -> None:
+        """Set the text to search for."""
+        self._text = text
+        self._case_sensitive = case_sensitive
+
+    def _is_satisfied_by_case_sensitive(self, obj: Topic) -> bool:
+        return self._text in obj.name
+
+    def _is_satisfied_by_case_insensitive(self, obj: Topic) -> bool:
+        return self._text.lower() in obj.name.lower()
+
+    @override
+    def is_satisfied_by(self, obj: Topic) -> bool:
         if self._case_sensitive:
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)

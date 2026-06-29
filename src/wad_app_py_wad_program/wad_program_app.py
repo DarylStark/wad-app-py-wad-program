@@ -4,7 +4,8 @@ from collections.abc import Callable
 
 from wad_app_py_wad_program.model import Session
 
-from .database import Database, SessionSpecification
+from .database import Database
+from .database_specifications import SessionSpecification, TopicSpecification
 from .program_retriever import ProgramRetriever
 
 
@@ -56,6 +57,6 @@ class WadProgramApp:
         """Retrieve sessions from the database."""
         return self._database.get_sessions(spec)
 
-    def get_topics(self) -> list[Topic]:
+    def get_topics(self, spec: TopicSpecification) -> list[Topic]:
         """Retrieve sessions from the database."""
-        return self._database.get_topics()
+        return self._database.get_topics(spec)
