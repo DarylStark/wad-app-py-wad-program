@@ -23,6 +23,7 @@ class TableVisitor(ModelVisitor):
         self._table.add_column('Endtime')
         self._table.add_column('Title')
         self._table.add_column('Main topic')
+        self._table.add_column('Topics')
 
     @override
     def visit_session(self, session: Session) -> None:
@@ -33,8 +34,9 @@ class TableVisitor(ModelVisitor):
             str(session.start_time),
             str(session.start_time),
             str(session.end_time),
-            session.main_topic,
             session.title,
+            session.main_topic,
+            str(', '.join(session.topics))
         )
 
     @override
