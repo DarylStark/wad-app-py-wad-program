@@ -91,14 +91,24 @@ class AnyTextContainsSpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
-        fields_to_search = ['title', 'main_topic', 'description']
+        # Search in "normal" text fields
+        fields_to_search = ['title', 'main_topic', 'description', 'main_topic']
         found = []
         for field in fields_to_search:
             value = getattr(obj, field)
-            if self._case_sensitive:
-                self._text.lower()
-                value.lower()
+            if not self._case_sensitive:
+                self._text = self._text.lower()
+                value = value.lower()
             found.append(self._text in value)
+
+        # Serach in Topics
+        value = ' '.join(obj.topics)
+        if not self._case_sensitive:
+            self_text = self._text.lower()
+            value = value.lower()
+        found.append(self._text in value)
+
+        # Only return if any of them are True
         return any(found)
 
 

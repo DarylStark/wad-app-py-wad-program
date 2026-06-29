@@ -19,8 +19,8 @@ class TableVisitor(ModelVisitor):
         self._table.add_column('#')
         self._table.add_column('State')
         self._table.add_column('Date')
-        self._table.add_column('Starttime')
-        self._table.add_column('Endtime')
+        self._table.add_column('Start')
+        self._table.add_column('End')
         self._table.add_column('Title')
         self._table.add_column('Main topic')
         self._table.add_column('Topics')
@@ -31,9 +31,9 @@ class TableVisitor(ModelVisitor):
         self._table.add_row(
             str(session.id),
             session.state.value.capitalize(),
-            str(session.start_time),
-            str(session.start_time),
-            str(session.end_time),
+            session.start_time.strftime('%a'),
+            session.start_time.strftime('%H:%M'),
+            session.end_time.strftime('%H:%M'),
             session.title,
             session.main_topic,
             str(', '.join(session.topics))
