@@ -34,10 +34,9 @@ class CompositeSpecification[T](Specification[T]):
 
 
 SessionSpecification = Specification[Session]
-SpeakerSpecification = Specification[Speaker]
 SessionCompositeSpecification = CompositeSpecification[Session]
+SpeakerSpecification = Specification[Speaker]
 SpeakerCompositeSpecification = CompositeSpecification[Speaker]
-
 
 class TitleContainsSpecification(SessionSpecification):
     """Specification for sessions with a specific text in the title."""
@@ -91,9 +90,10 @@ class AnyTextContainsSpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
+        found: list[bool] = []
+
         # Search in "normal" text fields
         fields_to_search = ['title', 'main_topic', 'description', 'main_topic']
-        found = []
         for field in fields_to_search:
             value = getattr(obj, field)
             if not self._case_sensitive:
@@ -152,6 +152,86 @@ class MainTopicSpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
+        if self._case_sensitive:
+            return self._is_satisfied_by_case_sensitive(obj)
+        return self._is_satisfied_by_case_insensitive(obj)
+
+class SpeakerSessionSpecification(SessionSpecification):
+    """Specification for a session to filter on speaker.
+
+    This specification takes a SpeakerSpecification in it's constructor and
+    will only validate to True when one of the speakers satisfied the
+    specification.
+    """
+
+    def __init__(self, speaker_spec: SpeakerSpecification) -> None:
+        """Set the speaker specification to search for."""
+        self._speaker_spec = speaker_spec
+
+    @override
+    def is_satisfied_by(self, obj: Session) -> bool:
+        found: list[bool] = [self._speaker_spec.is_satisfied_by(speaker) for speaker in obj.speakers]
+        return any(found)
+
+class SpeakerAnyTextSpecification(SpeakerSpecification):
+    """Specification that is satisfied by any text."""
+
+    def __init__(self, text: str, case_sensitive: bool = True) -> None:
+        """Set the text to search for."""
+        self._text = text
+        self._case_sensitive = case_sensitive
+
+    @override
+    def is_satisfied_by(self, obj: Speaker) -> None:
+        found: list[bool] = []
+
+        # Search in "normal" text fields
+        fields_to_search = ['name', 'job', 'tagline', 'summary']
+        for field in fields_to_search:
+            value = getattr(obj, field)
+            if not self._case_sensitive:
+                self._text = self._text.lower()
+                value = value.lower()
+            found.append(self._text in value)
+
+        return any(found)
+
+class TaglineContainsSpecification(SpeakerSpecification):
+    """Specification for speakers with a specific text in the tagline."""
+
+    def __init__(self, text: str, case_sensitive: bool = True) -> None:
+        """Set the text to search for."""
+        self._text = text
+        self._case_sensitive = case_sensitive
+
+    def _is_satisfied_by_case_sensitive(self, obj: Speaker) -> bool:
+        return self._text in obj.tagline
+
+    def _is_satisfied_by_case_insensitive(self, obj: Speaker) -> bool:
+        return self._text.lower() in obj.tagline.lower()
+
+    @override
+    def is_satisfied_by(self, obj: Speaker) -> bool:
+        if self._case_sensitive:
+            return self._is_satisfied_by_case_sensitive(obj)
+        return self._is_satisfied_by_case_insensitive(obj)
+
+class NameContainsSpecification(SpeakerSpecification):
+    """Specification for speakers with a specific text in the name."""
+
+    def __init__(self, text: str, case_sensitive: bool = True) -> None:
+        """Set the text to search for."""
+        self._text = text
+        self._case_sensitive = case_sensitive
+
+    def _is_satisfied_by_case_sensitive(self, obj: Speaker) -> bool:
+        return self._text in obj.name
+
+    def _is_satisfied_by_case_insensitive(self, obj: Speaker) -> bool:
+        return self._text.lower() in obj.name.lower()
+
+    @override
+    def is_satisfied_by(self, obj: Speaker) -> bool:
         if self._case_sensitive:
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)

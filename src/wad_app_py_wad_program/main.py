@@ -15,6 +15,10 @@ from .database_specifications import (
     SessionCompositeSpecification,
     StateSpecification,
     TitleContainsSpecification,
+    SpeakerAnyTextSpecification,
+    SpeakerSessionSpecification,
+    TaglineContainsSpecification,
+    NameContainsSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
@@ -81,6 +85,30 @@ def list_sessions(
         default=[],
         help='Filter: main topic contains text (case sensitive)',
     ),
+    speaker_text_i: list[str] = Option(
+        default=[],
+        help='Filter: speaker contains text (case insensitive)'
+    ),
+    speaker_text: list[str] = Option(
+        default=[],
+        help='Filter: speaker contains contains text (case sensitive)',
+    ),
+    speaker_tagline_text_i: list[str] = Option(
+        default=[],
+        help='Filter: speaker tagline contains text (case insensitive)'
+    ),
+    speaker_tagline_text: list[str] = Option(
+        default=[],
+        help='Filter: speaker tagline contains contains text (case sensitive)',
+    ),
+    speaker_name_text_i: list[str] = Option(
+        default=[],
+        help='Filter: speaker name contains text (case insensitive)'
+    ),
+    speaker_name_text: list[str] = Option(
+        default=[],
+        help='Filter: speaker name contains contains text (case sensitive)',
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -113,14 +141,35 @@ def list_sessions(
         for input_text in texts:
             spec.add_specification(spec_class(input_text, case_sensitive))
 
+    # Filter for Speakers
+    speaker_filters = {
+        'speaker_text': (speaker_text, SpeakerAnyTextSpecification, True),
+        'speaker_text_i': (speaker_text_i, SpeakerAnyTextSpecification, False),
+        'speaker_tagline_text': (speaker_tagline_text, TaglineContainsSpecification, True),
+        'speaker_tagline_text_i': (speaker_tagline_text_i, TaglineContainsSpecification, False),
+        'speaker_name_text': (speaker_name_text, NameContainsSpecification, True),
+        'speaker_name_text_i': (speaker_name_text_i, NameContainsSpecification, False),
+    }
+
+    # Apply text filters for speakers
+    for texts, spec_class, case_sensitive in speaker_filters.values():
+        for input_text in texts:
+            spec.add_specification(
+                SpeakerSessionSpecification(
+                    spec_class(input_text, case_sensitive)
+                )
+            )
+
     # Apply optional filters
     if filter_id:
         spec.add_specification(IdSpecification(filter_id))
     if state:
         spec.add_specification(StateSpecification(state))
 
+    # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)
 
+    # Generate output
     output_visitors = {
         OutputType.TABLE: TableVisitor(console),
         OutputType.DETAILS: DetailsVisitor(console),

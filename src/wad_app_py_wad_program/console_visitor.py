@@ -24,6 +24,7 @@ class TableVisitor(ModelVisitor):
         self._table.add_column('Title')
         self._table.add_column('Main topic')
         self._table.add_column('Topics')
+        self._table.add_column('Speakers')
 
     @override
     def visit_session(self, session: Session) -> None:
@@ -36,7 +37,8 @@ class TableVisitor(ModelVisitor):
             session.end_time.strftime('%H:%M'),
             session.title,
             session.main_topic,
-            str(', '.join(session.topics))
+            ', '.join(session.topics),
+            ', '.join([speaker.name for speaker in session.speakers])
         )
 
     @override
