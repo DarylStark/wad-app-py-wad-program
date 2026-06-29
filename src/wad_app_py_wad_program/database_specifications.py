@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import override
 
 from .model import Session, SessionState, Speaker
+from datetime import time
 
 
 class Specification[T](ABC):
@@ -175,6 +176,28 @@ class StageSpecification(SessionSpecification):
         if self._case_sensitive:
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)
+
+class StartTimeAtOrAfterSpecification(SessionSpecification):
+    """Specification for sessions with a starttime at or after."""
+
+    def __init__(self, start_time: time) -> None:
+        """Set the starttime to search for."""
+        self._start_time = start_time
+
+    @override
+    def is_satisfied_by(self, obj: Session) -> bool:
+        return self._start_time <= obj.start_time.time()
+
+class EndTimeAtOrBeforeSpecification(SessionSpecification):
+    """Specification for sessions with a endtime at or before."""
+
+    def __init__(self, end_time: time) -> None:
+        """Set the end time to search for."""
+        self._end_time = end_time
+
+    @override
+    def is_satisfied_by(self, obj: Session) -> bool:
+        return obj.end_time.time() <= self._end_time
 
 class SpeakerSessionSpecification(SessionSpecification):
     """Specification for a session to filter on speaker.

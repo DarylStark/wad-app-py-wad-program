@@ -19,13 +19,16 @@ from .database_specifications import (
     SpeakerSessionSpecification,
     TaglineContainsSpecification,
     NameContainsSpecification,
-    StageSpecification
+    StageSpecification,
+    StartTimeAtOrAfterSpecification,
+    EndTimeAtOrBeforeSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
 from .model import ModelVisitor, Session, SessionState
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
+from datetime import time, datetime
 
 
 class OutputType(Enum):
@@ -117,6 +120,14 @@ def list_sessions(
         default=[],
         help='Filter: stage contains text (case sensitive)',
     ),
+    start_time_after: str | None = Option(
+        default=None,
+        help='Filter: session starts at or after a specific time (format: HH:MM)'
+    ),
+    end_time_before: str | None = Option(
+        default=None,
+        help='Filter: session end at or before a specific time (format: HH:MM)'
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -175,6 +186,14 @@ def list_sessions(
         spec.add_specification(IdSpecification(filter_id))
     if state:
         spec.add_specification(StateSpecification(state))
+
+    # Time filters
+    if start_time_after:
+        start_time_object = datetime.strptime(start_time_after, '%H:%M').time()
+        spec.add_specification(StartTimeAtOrAfterSpecification(start_time_object))
+    if end_time_before:
+        end_time_object = datetime.strptime(end_time_before, '%H:%M').time()
+        spec.add_specification(EndTimeAtOrBeforeSpecification(end_time_object))
 
     # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)
