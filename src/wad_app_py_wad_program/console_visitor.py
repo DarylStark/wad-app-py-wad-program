@@ -36,7 +36,7 @@ class TableVisitor(ModelVisitor):
         self._table.add_row(
             str(session.id),
             session.state.value.capitalize(),
-            session.interest_level.value.capitalize(),
+            session.interest_level.value.replace('_', ' ').capitalize(),
             session.stage,
             session.start_time.strftime('%a'),
             session.start_time.strftime('%H:%M'),

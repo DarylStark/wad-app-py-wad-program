@@ -46,6 +46,10 @@ class WadProgramApp:
         )
         self._database.save()
 
+    def save_database(self) -> None:
+        """Save the database."""
+        self._database.save()
+
     def get_sessions(
         self, spec: SessionSpecification | None = None
     ) -> list[Session]:

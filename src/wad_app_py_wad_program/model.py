@@ -22,10 +22,9 @@ class ModelVisitor(ABC):
 class SessionState(Enum):
     """The state for a session.
 
-    NEW: the session was added in the last sync.
-    ACTIVE: the session was seen in the last time it synced.
-    REMOVED: the session was seen once, but wasn't in there after the last time
-        it synced.
+    NEW: the session was not seen by the user yet.
+    ACTIVE: the session was seen by the user.
+    REMOVED: the sessions was once in the schedule but not anymore.
     """
 
     NEW = 'new'

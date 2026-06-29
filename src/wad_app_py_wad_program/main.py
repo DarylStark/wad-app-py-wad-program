@@ -135,6 +135,8 @@ def sessions(
     interest_level: InterestLevel | None = Option(
         default=None, help='Filter: specific interest level.'
     ),
+    set_state: SessionState | None = Option(default=None, help='Action: Set session state'),
+    set_interest_level: InterestLevel | None = Option(default=None, help='Action: Set interest level')
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -226,6 +228,17 @@ def sessions(
 
     # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)
+
+    # Actions
+    if set_state or set_interest_level:
+        for session in sessions:
+            if set_state:
+                session.state = set_state
+            if set_interest_level:
+                session.interest_level = set_interest_level
+
+    # Save the database
+    wad.save_database()
 
     # Generate output
     output_visitors = {

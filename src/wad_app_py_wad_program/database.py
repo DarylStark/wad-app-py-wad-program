@@ -51,6 +51,9 @@ class Database(ABC):
             if id not in sessions_with_id:
                 sessions_with_id[id] = session
                 session.state = SessionState.NEW
+            else:
+                session.interest_level = sessions_with_id[id].interest_level
+                session.state = sessions_with_id[id].state
             progress += 1
             if hook_progress:
                 hook_progress(progress)
