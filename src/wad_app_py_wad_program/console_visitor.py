@@ -3,8 +3,11 @@
 from typing import override
 
 from rich import box
-from rich.console import Console
+from rich.console import Console, Group
 from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+from rich.columns import Columns
 
 from .model import ModelVisitor, Session
 
@@ -59,7 +62,19 @@ class DetailsVisitor(ModelVisitor):
     @override
     def visit_session(self, session: Session) -> None:
         """Add a session to the table."""
-        self._console.print(f'Session: {session.title}')
+        header = f'[b][yellow]{session.title}[/yellow][/b] ([green]{session.main_topic}[/]) - {session.state.value.capitalize()}\n'
+        header += f'[bright_black][b]{session.start_time.strftime("%A")}[/b], from [b]{session.start_time.strftime("%H:%M")}[/b] till [b]{session.end_time.strftime("%H:%M")}[/b] at [b]{session.stage}[/b][/]\n'
+
+        text = session.description
+
+        footer = f'[b][green]Topics:[/green][/b] {', '.join(session.topics)}'
+
+        speakers: list[str] = []
+        for speaker in session.speakers:
+            speakers.append(f'[b][orange]{speaker.name}[/orange][/b] ([bright_black]{speaker.job}[/bright_black])\n[i][bright_black]{speaker.tagline}[/bright_black][/i]\n\n{speaker.summary}')
+
+        panel = Panel(Group(header, text, '\n', footer, '\n', '\n\n\n'.join(speakers)))
+        self._console.print(panel)
 
     @override
     def done(self) -> None:
