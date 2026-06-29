@@ -1,14 +1,25 @@
 """Module with filters for the CLI commands."""
 
-from wad_app_py_wad_program.cli_builders import SpecBuildDict
+from wad_app_py_wad_program.cli_builders import (
+    EqualitySpecBuildDict,
+    TextContainsSpecBuildDict,
+)
 from wad_app_py_wad_program.database_specifications import (
+    FieldIsEqualTooSpecification,
     SessionTextContainsSpecification,
     SpeakerTextContainsSpecification,
     TopicTextContainsSpecification,
 )
-from wad_app_py_wad_program.model import Session, Speaker, Topic
+from wad_app_py_wad_program.model import (
+    InterestLevel,
+    Session,
+    SessionState,
+    Speaker,
+    Topic,
+    Day,
+)
 
-cli_session_text_filters: SpecBuildDict[Session] = {
+cli_session_text_filters: TextContainsSpecBuildDict[Session] = {
     'title': lambda text: SessionTextContainsSpecification(text, ['title']),
     'description': lambda text: SessionTextContainsSpecification(
         text, ['description']
@@ -23,7 +34,18 @@ cli_session_text_filters: SpecBuildDict[Session] = {
     'topic': lambda text: SessionTextContainsSpecification(text, ['topics']),
 }
 
-cli_speaker_text_filters: SpecBuildDict[Speaker] = {
+cli_session_equality_filters: EqualitySpecBuildDict[Session] = {
+    'filter_id': lambda value: FieldIsEqualTooSpecification(value, 'id', int),
+    'state': lambda value: FieldIsEqualTooSpecification(
+        SessionState(value), 'state', SessionState
+    ),
+    'interest_level': lambda value: FieldIsEqualTooSpecification(
+        InterestLevel(value), 'interest_level', InterestLevel
+    ),
+    'day': lambda value: FieldIsEqualTooSpecification(Day(value), 'day', Day),
+}
+
+cli_speaker_text_filters: TextContainsSpecBuildDict[Speaker] = {
     'speaker_any': lambda text: SpeakerTextContainsSpecification(
         text, ['name', 'job', 'tagline', 'summary']
     ),
@@ -41,6 +63,12 @@ cli_speaker_text_filters: SpecBuildDict[Speaker] = {
     ),
 }
 
-cli_topics_text_filters: SpecBuildDict[Topic] = {
+cli_topics_text_filters: TextContainsSpecBuildDict[Topic] = {
     'name': lambda text: TopicTextContainsSpecification(text, ['name'])
+}
+
+cli_topics_equality_filters: EqualitySpecBuildDict[Topic] = {
+    'main_topic': lambda value: FieldIsEqualTooSpecification(
+        bool(value), 'is_main_topic', bool
+    ),
 }

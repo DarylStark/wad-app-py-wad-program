@@ -9,19 +9,25 @@ from typing import Any, TypeVar
 
 from .database_specifications import (
     CompositeSpecification,
+    FieldIsEqualTooSpecification,
     TextContainsSpecification,
 )
 
 T = TypeVar('T')
-type SpecBuildDict[T] = dict[
+type TextContainsSpecBuildDict[T] = dict[
     str, Callable[[str], TextContainsSpecification[T]]
+]
+
+type EqualitySpecBuildDict[T] = dict[
+    str, Callable[[str], FieldIsEqualTooSpecification[T]]
 ]
 
 
 def build_text_specification[T](
-    spec_build_dict: SpecBuildDict[T], params: dict[str, tuple[Any]]
+    spec_build_dict: TextContainsSpecBuildDict[T],
+    params: dict[str, tuple[Any]],
 ) -> CompositeSpecification[T]:
-    """Function to build a Composite Specification for specific filters."""
+    """Function to build a Composite Specification for text filters."""
     specs = CompositeSpecification[T]()
     for filter, builder in spec_build_dict.items():
         filter_arg_sensitive = f'{filter}_text'
@@ -44,5 +50,16 @@ def build_text_specification[T](
                 spec = builder(text)
                 spec.set_case_sensitivity(False)
                 specs.add_specification(spec)
+    return specs
 
+
+def build_equality_specification[T](
+    spec_build_dict: EqualitySpecBuildDict[T], params: dict[str, Any]
+) -> CompositeSpecification[T]:
+    """Function to build a Composite Specification for equality filters."""
+    specs = CompositeSpecification[T]()
+    for filter, builder in spec_build_dict.items():
+        if filter in params and params.get(filter) is not None:
+            specs.add_specification(builder(params[filter]))
+            pass
     return specs

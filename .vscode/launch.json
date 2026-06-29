@@ -22,8 +22,10 @@
             "args": [
                 "./test_database.json",
                 "sessions",
-                "--description-text",
-                "python"
+                "--description-text-i",
+                "python",
+                "--state",
+                "new"
             ]
         },
         {

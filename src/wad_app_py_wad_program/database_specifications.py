@@ -2,9 +2,9 @@
 
 from abc import ABC, abstractmethod
 from datetime import time
-from typing import override
+from typing import Any, override
 
-from .model import Day, InterestLevel, Session, SessionState, Speaker, Topic
+from .model import Day, Session, Speaker, Topic
 
 
 class Specification[T](ABC):
@@ -66,6 +66,20 @@ class TextContainsSpecification[T](Specification[T]):
         return any(satifisfactions)
 
 
+class FieldIsEqualTooSpecification[T](Specification[T]):
+    """Specification to cehck if a specific field is equal to a value."""
+
+    def __init__(self, value: Any, field: str, expected_type: type) -> None:
+        """Set default values."""
+        self._value = value
+        self._field = field
+        self._expected_type = expected_type
+
+    @override
+    def is_satisfied_by(self, obj: T) -> bool:
+        return getattr(obj, self._field) == self._value
+
+
 SessionSpecification = Specification[Session]
 SessionCompositeSpecification = CompositeSpecification[Session]
 SessionTextContainsSpecification = TextContainsSpecification[Session]
@@ -75,30 +89,6 @@ SpeakerTextContainsSpecification = TextContainsSpecification[Speaker]
 TopicSpecification = Specification[Topic]
 TopicCompositeSpecification = CompositeSpecification[Topic]
 TopicTextContainsSpecification = TextContainsSpecification[Topic]
-
-
-class IdSpecification(SessionSpecification):
-    """Specification for sessions with a specific ID."""
-
-    def __init__(self, search_id: int) -> None:
-        """Set the id to search for."""
-        self._id = search_id
-
-    @override
-    def is_satisfied_by(self, obj: Session) -> bool:
-        return obj.id == self._id
-
-
-class StateSpecification(SessionSpecification):
-    """Specification for sessions with a specific state."""
-
-    def __init__(self, state: SessionState) -> None:
-        """Set the id to search for."""
-        self._state = state
-
-    @override
-    def is_satisfied_by(self, obj: Session) -> bool:
-        return obj.state == self._state
 
 
 class StartTimeAtOrAfterSpecification(SessionSpecification):
@@ -143,18 +133,6 @@ class SpecificDaySpecification(SessionSpecification):
         return obj.start_time.isoweekday() == self._day.iso_day_number
 
 
-class InterestLevelSpecification(SessionSpecification):
-    """Specification for sessions with a specific Interest level."""
-
-    def __init__(self, level: InterestLevel) -> None:
-        """Set the level to filter on."""
-        self._level = level
-
-    @override
-    def is_satisfied_by(self, obj: Session) -> bool:
-        return obj.interest_level == self._level
-
-
 class SpeakerSessionSpecification(SessionSpecification):
     """Specification for a session to filter on speaker.
 
@@ -174,24 +152,3 @@ class SpeakerSessionSpecification(SessionSpecification):
             for speaker in obj.speakers
         ]
         return any(found)
-
-
-class TopicNameContainsSpecification(TopicSpecification):
-    """Specification for topics that contains text in the name."""
-
-    def __init__(self, text: str, case_sensitive: bool = True) -> None:
-        """Set the text to search for."""
-        self._text = text
-        self._case_sensitive = case_sensitive
-
-    def _is_satisfied_by_case_sensitive(self, obj: Topic) -> bool:
-        return self._text in obj.name
-
-    def _is_satisfied_by_case_insensitive(self, obj: Topic) -> bool:
-        return self._text.lower() in obj.name.lower()
-
-    @override
-    def is_satisfied_by(self, obj: Topic) -> bool:
-        if self._case_sensitive:
-            return self._is_satisfied_by_case_sensitive(obj)
-        return self._is_satisfied_by_case_insensitive(obj)

@@ -103,6 +103,13 @@ class Session(BaseModel):
             return self.end_time - self.start_time
         return timedelta()
 
+    @property
+    def day(self) -> Day:
+        """Return the Day object for this model."""
+        if not self.start_time:
+            return Day.WED
+        return Day(self.start_time.strftime('%a').lower())
+
 
 class Speaker(BaseModel):
     """Model for a Speaker."""

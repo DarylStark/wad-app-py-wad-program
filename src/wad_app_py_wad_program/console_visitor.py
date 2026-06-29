@@ -45,8 +45,8 @@ class TableVisitor(ConsoleVisitor):
             self._table.add_column('#')
             self._table.add_column('State')
             self._table.add_column('Interest')
-            self._table.add_column('Day')
             self._table.add_column('Stage')
+            self._table.add_column('Day')
             self._table.add_column('Start')
             self._table.add_column('End')
             self._table.add_column('Min')
@@ -89,7 +89,8 @@ class TableVisitor(ConsoleVisitor):
             self._get_state_str(session.state),
             self._get_interest_level_str(session.interest_level),
             session.stage,
-            self._convert_datetime_to_format(session.start_time, '%a'),
+            # self._convert_datetime_to_format(session.start_time, '%a'),
+            session.day.value.capitalize(),
             self._convert_datetime_to_format(session.start_time, '%H:%M'),
             self._convert_datetime_to_format(session.end_time, '%H:%M'),
             f'{session.duration.seconds / 60:.0f}',

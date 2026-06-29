@@ -8,23 +8,25 @@ from rich.progress import Progress
 from typer import Context, Option, Typer
 
 from wad_app_py_wad_program.cli_builders import (
+    build_equality_specification,
     build_text_specification,
 )
 from wad_app_py_wad_program.cli_filters import (
+    cli_session_equality_filters,
     cli_session_text_filters,
     cli_speaker_text_filters,
     cli_topics_text_filters,
+    cli_topics_equality_filters,
 )
 
 from .console_visitor import DataType, DetailsVisitor, TableVisitor
 from .database_specifications import (
     EndTimeAtOrBeforeSpecification,
-    IdSpecification,
-    InterestLevelSpecification,
+    SessionCompositeSpecification,
     SpeakerSessionSpecification,
     SpecificDaySpecification,
     StartTimeAtOrAfterSpecification,
-    StateSpecification,
+    TopicCompositeSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
@@ -155,7 +157,7 @@ def sessions(
         help='Filter: session end at or before a specific time '
         '(format: HH:MM)',
     ),
-    specific_day: Day | None = Option(
+    day: Day | None = Option(
         default=None, help='Filter: sessions at a specific day'
     ),
     interest_level: InterestLevel | None = Option(
@@ -172,19 +174,19 @@ def sessions(
     console = ctx.obj['console']
     wad = ctx.obj['wad']
 
-    spec = build_text_specification(cli_session_text_filters, ctx.params)
-    speaker_spec = build_text_specification(
-        cli_speaker_text_filters, ctx.params
-    )
-    spec.add_specification(SpeakerSessionSpecification(speaker_spec))
+    spec = SessionCompositeSpecification()
 
-    # Apply optional filters
-    if filter_id:
-        spec.add_specification(IdSpecification(filter_id))
-    if state:
-        spec.add_specification(StateSpecification(state))
-    if interest_level:
-        spec.add_specification(InterestLevelSpecification(interest_level))
+    spec.add_specification(
+        build_text_specification(cli_session_text_filters, ctx.params)
+    )
+    spec.add_specification(
+        SpeakerSessionSpecification(
+            build_text_specification(cli_speaker_text_filters, ctx.params)
+        )
+    )
+    spec.add_specification(
+        build_equality_specification(cli_session_equality_filters, ctx.params)
+    )
 
     # Time filters
     if start_time_after:
@@ -195,8 +197,6 @@ def sessions(
     if end_time_before:
         end_time_object = datetime.strptime(end_time_before, '%H:%M').time()
         spec.add_specification(EndTimeAtOrBeforeSpecification(end_time_object))
-    if specific_day:
-        spec.add_specification(SpecificDaySpecification(specific_day))
 
     # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)
@@ -241,12 +241,24 @@ def topics(
         default=[],
         help='Filter: name contains text (case sensitive)',
     ),
+    main_topic: bool | None = Option(
+        default=None,
+        help='Filter: show only main topics',
+    ),
 ) -> None:
     """Show topics in the database."""
     console = ctx.obj['console']
     wad = ctx.obj['wad']
 
-    spec = build_text_specification(cli_topics_text_filters, ctx.params)
+    spec = TopicCompositeSpecification()
+    spec.add_specification(
+        build_text_specification(cli_topics_text_filters, ctx.params)
+    )
+    spec.add_specification(
+        build_equality_specification(cli_topics_equality_filters, ctx.params)
+    )
+
+    # Get the topics
     topics = wad.get_topics(spec)
 
     # Generate output
