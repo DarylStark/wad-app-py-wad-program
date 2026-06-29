@@ -32,6 +32,7 @@ class SessionState(Enum):
     ACTIVE = 'active'
     REMOVED = 'removed'
 
+
 class Day(Enum):
     """Specific days.
 
@@ -46,7 +47,7 @@ class Day(Enum):
     def iso_day_number(self) -> int:
         """Convert the given date to a ISO number."""
         if self == Day.WED:
-            return 3 
+            return 3
         elif self == Day.THU:
             return 4
         return 5

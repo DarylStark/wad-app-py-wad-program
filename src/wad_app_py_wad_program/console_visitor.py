@@ -4,10 +4,8 @@ from typing import override
 
 from rich import box
 from rich.console import Console, Group
-from rich.table import Table
 from rich.panel import Panel
-from rich.text import Text
-from rich.columns import Columns
+from rich.table import Table
 
 from .model import ModelVisitor, Session
 
@@ -45,7 +43,7 @@ class TableVisitor(ModelVisitor):
             session.title,
             session.main_topic,
             ', '.join(session.topics),
-            ', '.join([speaker.name for speaker in session.speakers])
+            ', '.join([speaker.name for speaker in session.speakers]),
         )
 
     @override
@@ -69,13 +67,17 @@ class DetailsVisitor(ModelVisitor):
 
         text = session.description
 
-        footer = f'[b][green]Topics:[/green][/b] {', '.join(session.topics)}'
+        footer = f'[b][green]Topics:[/green][/b] {", ".join(session.topics)}'
 
         speakers: list[str] = []
         for speaker in session.speakers:
-            speakers.append(f'[b][orange]{speaker.name}[/orange][/b] ([bright_black]{speaker.job}[/bright_black])\n[i][bright_black]{speaker.tagline}[/bright_black][/i]\n\n{speaker.summary}')
+            speakers.append(
+                f'[b][orange]{speaker.name}[/orange][/b] ([bright_black]{speaker.job}[/bright_black])\n[i][bright_black]{speaker.tagline}[/bright_black][/i]\n\n{speaker.summary}'
+            )
 
-        panel = Panel(Group(header, text, '\n', footer, '\n', '\n\n\n'.join(speakers)))
+        panel = Panel(
+            Group(header, text, '\n', footer, '\n', '\n\n\n'.join(speakers))
+        )
         self._console.print(panel)
 
     @override

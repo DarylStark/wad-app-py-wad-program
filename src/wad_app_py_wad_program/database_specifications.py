@@ -1,10 +1,10 @@
 """Module with Specifications for the database."""
 
 from abc import ABC, abstractmethod
+from datetime import time
 from typing import override
 
-from .model import Session, SessionState, Speaker, Day
-from datetime import time
+from .model import Day, Session, SessionState, Speaker
 
 
 class Specification[T](ABC):
@@ -38,6 +38,7 @@ SessionSpecification = Specification[Session]
 SessionCompositeSpecification = CompositeSpecification[Session]
 SpeakerSpecification = Specification[Speaker]
 SpeakerCompositeSpecification = CompositeSpecification[Speaker]
+
 
 class TitleContainsSpecification(SessionSpecification):
     """Specification for sessions with a specific text in the title."""
@@ -105,7 +106,7 @@ class AnyTextContainsSpecification(SessionSpecification):
         # Serach in Topics
         value = ' '.join(obj.topics)
         if not self._case_sensitive:
-            self_text = self._text.lower()
+            self.text = self._text.lower()
             value = value.lower()
         found.append(self._text in value)
 
@@ -157,6 +158,7 @@ class MainTopicSpecification(SessionSpecification):
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)
 
+
 class StageSpecification(SessionSpecification):
     """Specification for sessions with a specific text in the stage."""
 
@@ -177,6 +179,7 @@ class StageSpecification(SessionSpecification):
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)
 
+
 class StartTimeAtOrAfterSpecification(SessionSpecification):
     """Specification for sessions with a starttime at or after."""
 
@@ -187,6 +190,7 @@ class StartTimeAtOrAfterSpecification(SessionSpecification):
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
         return self._start_time <= obj.start_time.time()
+
 
 class EndTimeAtOrBeforeSpecification(SessionSpecification):
     """Specification for sessions with a endtime at or before."""
@@ -199,6 +203,7 @@ class EndTimeAtOrBeforeSpecification(SessionSpecification):
     def is_satisfied_by(self, obj: Session) -> bool:
         return obj.end_time.time() <= self._end_time
 
+
 class SpecificDaySpecification(SessionSpecification):
     """Specification for sessions at a specific day."""
 
@@ -209,6 +214,7 @@ class SpecificDaySpecification(SessionSpecification):
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
         return obj.start_time.isoweekday() == self._day.iso_day_number
+
 
 class SpeakerSessionSpecification(SessionSpecification):
     """Specification for a session to filter on speaker.
@@ -224,8 +230,12 @@ class SpeakerSessionSpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
-        found: list[bool] = [self._speaker_spec.is_satisfied_by(speaker) for speaker in obj.speakers]
+        found: list[bool] = [
+            self._speaker_spec.is_satisfied_by(speaker)
+            for speaker in obj.speakers
+        ]
         return any(found)
+
 
 class SpeakerAnyTextSpecification(SpeakerSpecification):
     """Specification that is satisfied by any text."""
@@ -250,6 +260,7 @@ class SpeakerAnyTextSpecification(SpeakerSpecification):
 
         return any(found)
 
+
 class TaglineContainsSpecification(SpeakerSpecification):
     """Specification for speakers with a specific text in the tagline."""
 
@@ -269,6 +280,7 @@ class TaglineContainsSpecification(SpeakerSpecification):
         if self._case_sensitive:
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)
+
 
 class NameContainsSpecification(SpeakerSpecification):
     """Specification for speakers with a specific text in the name."""

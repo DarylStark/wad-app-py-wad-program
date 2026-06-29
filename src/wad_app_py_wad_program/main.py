@@ -1,5 +1,6 @@
 """Main entry point for the CLI."""
 
+from datetime import datetime
 from enum import Enum
 
 from rich.console import Console
@@ -10,26 +11,25 @@ from .console_visitor import DetailsVisitor, TableVisitor
 from .database_specifications import (
     AnyTextContainsSpecification,
     DescriptionContainsSpecification,
+    EndTimeAtOrBeforeSpecification,
     IdSpecification,
     MainTopicSpecification,
+    NameContainsSpecification,
     SessionCompositeSpecification,
-    StateSpecification,
-    TitleContainsSpecification,
     SpeakerAnyTextSpecification,
     SpeakerSessionSpecification,
-    TaglineContainsSpecification,
-    NameContainsSpecification,
+    SpecificDaySpecification,
     StageSpecification,
     StartTimeAtOrAfterSpecification,
-    EndTimeAtOrBeforeSpecification,
-    SpecificDaySpecification,
+    StateSpecification,
+    TaglineContainsSpecification,
+    TitleContainsSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
-from .model import ModelVisitor, Session, SessionState, Day
+from .model import Day, ModelVisitor, Session, SessionState
 from .page_loader import WebPageLoader
 from .wad_program_app import WadProgramApp
-from datetime import time, datetime
 
 
 class OutputType(Enum):
@@ -91,8 +91,7 @@ def sessions(
         help='Filter: main topic contains text (case sensitive)',
     ),
     speaker_text_i: list[str] = Option(
-        default=[],
-        help='Filter: speaker contains text (case insensitive)'
+        default=[], help='Filter: speaker contains text (case insensitive)'
     ),
     speaker_text: list[str] = Option(
         default=[],
@@ -100,7 +99,7 @@ def sessions(
     ),
     speaker_tagline_text_i: list[str] = Option(
         default=[],
-        help='Filter: speaker tagline contains text (case insensitive)'
+        help='Filter: speaker tagline contains text (case insensitive)',
     ),
     speaker_tagline_text: list[str] = Option(
         default=[],
@@ -108,7 +107,7 @@ def sessions(
     ),
     speaker_name_text_i: list[str] = Option(
         default=[],
-        help='Filter: speaker name contains text (case insensitive)'
+        help='Filter: speaker name contains text (case insensitive)',
     ),
     speaker_name_text: list[str] = Option(
         default=[],
@@ -123,15 +122,14 @@ def sessions(
     ),
     start_time_after: str | None = Option(
         default=None,
-        help='Filter: session starts at or after a specific time (format: HH:MM)'
+        help='Filter: session starts at or after a specific time (format: HH:MM)',
     ),
     end_time_before: str | None = Option(
         default=None,
-        help='Filter: session end at or before a specific time (format: HH:MM)'
+        help='Filter: session end at or before a specific time (format: HH:MM)',
     ),
     specific_day: Day | None = Option(
-        default=None,
-        help='Filter: sessions at a specific day'
+        default=None, help='Filter: sessions at a specific day'
     ),
 ) -> None:
     """List sessions currently in the database."""
@@ -171,10 +169,26 @@ def sessions(
     speaker_filters = {
         'speaker_text': (speaker_text, SpeakerAnyTextSpecification, True),
         'speaker_text_i': (speaker_text_i, SpeakerAnyTextSpecification, False),
-        'speaker_tagline_text': (speaker_tagline_text, TaglineContainsSpecification, True),
-        'speaker_tagline_text_i': (speaker_tagline_text_i, TaglineContainsSpecification, False),
-        'speaker_name_text': (speaker_name_text, NameContainsSpecification, True),
-        'speaker_name_text_i': (speaker_name_text_i, NameContainsSpecification, False),
+        'speaker_tagline_text': (
+            speaker_tagline_text,
+            TaglineContainsSpecification,
+            True,
+        ),
+        'speaker_tagline_text_i': (
+            speaker_tagline_text_i,
+            TaglineContainsSpecification,
+            False,
+        ),
+        'speaker_name_text': (
+            speaker_name_text,
+            NameContainsSpecification,
+            True,
+        ),
+        'speaker_name_text_i': (
+            speaker_name_text_i,
+            NameContainsSpecification,
+            False,
+        ),
     }
 
     # Apply text filters for speakers
@@ -195,7 +209,9 @@ def sessions(
     # Time filters
     if start_time_after:
         start_time_object = datetime.strptime(start_time_after, '%H:%M').time()
-        spec.add_specification(StartTimeAtOrAfterSpecification(start_time_object))
+        spec.add_specification(
+            StartTimeAtOrAfterSpecification(start_time_object)
+        )
     if end_time_before:
         end_time_object = datetime.strptime(end_time_before, '%H:%M').time()
         spec.add_specification(EndTimeAtOrBeforeSpecification(end_time_object))
