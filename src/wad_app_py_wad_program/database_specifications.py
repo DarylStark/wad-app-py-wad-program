@@ -156,6 +156,26 @@ class MainTopicSpecification(SessionSpecification):
             return self._is_satisfied_by_case_sensitive(obj)
         return self._is_satisfied_by_case_insensitive(obj)
 
+class StageSpecification(SessionSpecification):
+    """Specification for sessions with a specific text in the stage."""
+
+    def __init__(self, text: str, case_sensitive: bool = True) -> None:
+        """Set the text to search for."""
+        self._text = text
+        self._case_sensitive = case_sensitive
+
+    def _is_satisfied_by_case_sensitive(self, obj: Session) -> bool:
+        return self._text in obj.stage
+
+    def _is_satisfied_by_case_insensitive(self, obj: Session) -> bool:
+        return self._text.lower() in obj.stage.lower()
+
+    @override
+    def is_satisfied_by(self, obj: Session) -> bool:
+        if self._case_sensitive:
+            return self._is_satisfied_by_case_sensitive(obj)
+        return self._is_satisfied_by_case_insensitive(obj)
+
 class SpeakerSessionSpecification(SessionSpecification):
     """Specification for a session to filter on speaker.
 

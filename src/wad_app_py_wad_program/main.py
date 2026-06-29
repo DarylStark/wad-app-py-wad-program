@@ -19,6 +19,7 @@ from .database_specifications import (
     SpeakerSessionSpecification,
     TaglineContainsSpecification,
     NameContainsSpecification,
+    StageSpecification
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
@@ -109,6 +110,13 @@ def list_sessions(
         default=[],
         help='Filter: speaker name contains contains text (case sensitive)',
     ),
+    stage_text_i: list[str] = Option(
+        default=[], help='Filter: stage contains text (case insensitive)'
+    ),
+    stage_text: list[str] = Option(
+        default=[],
+        help='Filter: stage contains text (case sensitive)',
+    ),
 ) -> None:
     """List sessions currently in the database."""
     console = ctx.obj['console']
@@ -134,6 +142,8 @@ def list_sessions(
             False,
         ),
         'main_topic_text': (main_topic_text, MainTopicSpecification, True),
+        'stage_text': (stage_text, StageSpecification, True),
+        'stage_text_i': (stage_text_i, StageSpecification, False),
     }
 
     # Apply all text filters

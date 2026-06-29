@@ -18,7 +18,8 @@ class TableVisitor(ModelVisitor):
         self._table = Table(box=box.SIMPLE)
         self._table.add_column('#')
         self._table.add_column('State')
-        self._table.add_column('Date')
+        self._table.add_column('Day')
+        self._table.add_column('Stage')
         self._table.add_column('Start')
         self._table.add_column('End')
         self._table.add_column('Title')
@@ -32,6 +33,7 @@ class TableVisitor(ModelVisitor):
         self._table.add_row(
             str(session.id),
             session.state.value.capitalize(),
+            session.stage,
             session.start_time.strftime('%a'),
             session.start_time.strftime('%H:%M'),
             session.end_time.strftime('%H:%M'),
