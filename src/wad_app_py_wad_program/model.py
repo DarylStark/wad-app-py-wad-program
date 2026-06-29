@@ -108,6 +108,13 @@ class Speaker(BaseModel):
     sessions: list[Session] = Field(default_factory=list)
 
 
+class Topic(BaseModel):
+    """Model for a Topic."""
+
+    name: str
+    is_main_topic: bool = False
+
+
 class EventData(BaseModel):
     """Model for a the complete event data.
 
@@ -115,4 +122,5 @@ class EventData(BaseModel):
     """
 
     sessions: list[Session]
-    speakers: list[Speaker]
+    speakers: list[Speaker] = Field(default_factory=list)
+    topics: list[Topic] = Field(default_factory=list)

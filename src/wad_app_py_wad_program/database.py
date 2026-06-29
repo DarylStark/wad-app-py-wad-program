@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 
 from .database_specifications import SessionSpecification
-from .model import EventData, Session, SessionState, Speaker
+from .model import EventData, Session, SessionState, Speaker, Topic
 
 
 class Database(ABC):
@@ -28,6 +28,10 @@ class Database(ABC):
     def get_speakers(self) -> list[Speaker]:
         """Retrieve the speakers from the database."""
         return self._data.speakers
+
+    def get_topics(self) -> list[Topic]:
+        """Retrieve the speakers from the database."""
+        return self._data.topics
 
     def _sync_sessions(
         self,
@@ -88,6 +92,17 @@ class Database(ABC):
                 hook_progress(done + 1)
         self._data.speakers = list(speakers.values())
 
+    def _update_topic_list(self) -> None:
+        topics: dict[str, Topic] = {}
+        for session in self._data.sessions:
+            main_topic = session.main_topic
+            session_topics = session.topics
+            topic_obj = topics.setdefault(main_topic, Topic(name=main_topic))
+            topic_obj.is_main_topic = True
+            for topic in session_topics:
+                topics.setdefault(topic, Topic(name=topic))
+        self._data.topics = list(topics.values())
+
     def sync(
         self,
         event_data: EventData,
@@ -103,6 +118,7 @@ class Database(ABC):
             hook_total=hook_sync_total,
             hook_progress=hook_sync_progress,
         )
+        # TODO: Remove this
         self._update_speaker_list(
             hook_total=hook_speaker_list_total,
             hook_progress=hook_speaker_list_progress,

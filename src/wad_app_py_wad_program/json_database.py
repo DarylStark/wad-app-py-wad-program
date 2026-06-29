@@ -26,6 +26,7 @@ class JsonDatabase(Database):
             json_text = Path(self._filename).read_text(encoding='utf-8')
             self._data = EventData.model_validate_json(json_text)
             self._update_speaker_list()
+            self._update_topic_list()
         except FileNotFoundError:
             pass
 
@@ -37,6 +38,7 @@ class JsonDatabase(Database):
             for speaker in session.speakers:
                 speaker.sessions = []
         data_to_save.speakers = []
+        data_to_save.topics = []
 
         Path(self._filename).write_text(
             data_to_save.model_dump_json(),

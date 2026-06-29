@@ -55,3 +55,7 @@ class WadProgramApp:
     ) -> list[Session]:
         """Retrieve sessions from the database."""
         return self._database.get_sessions(spec)
+
+    def get_topics(self) -> list[Topic]:
+        """Retrieve sessions from the database."""
+        return self._database.get_topics()

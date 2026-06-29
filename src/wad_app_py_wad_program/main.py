@@ -251,6 +251,20 @@ def sessions(
         session.accept(visitor)
     visitor.done()
 
+@app.command(
+    name='topics',
+    help='Show topics.',
+    short_help='Show topics.',
+)
+def topics(ctx: Context) -> None:
+    """Show topics in the database."""
+    console = ctx.obj['console']
+    wad = ctx.obj['wad']
+
+    topics = wad.get_topics()
+
+    print(topics)
+
 
 @app.command(
     name='update', help='Update the sessions', short_help='Update the sessions'
