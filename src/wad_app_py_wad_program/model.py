@@ -1,7 +1,7 @@
 """The data model for the package."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -109,6 +109,20 @@ class Session(BaseModel):
         if not self.start_time:
             return Day.WED
         return Day(self.start_time.strftime('%a').lower())
+
+    @property
+    def start_time_time(self) -> time:
+        """Returns the `time` object for the start_time."""
+        if not self.start_time:
+            return time()
+        return self.start_time.time()
+
+    @property
+    def end_time_time(self) -> time:
+        """Returns the `time` object for the start_time."""
+        if not self.end_time:
+            return time()
+        return self.end_time.time()
 
 
 class Speaker(BaseModel):

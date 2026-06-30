@@ -1,11 +1,10 @@
 """Module with filters for the CLI commands."""
 
-from wad_app_py_wad_program.cli_builders import (
-    EqualitySpecBuildDict,
-    TextContainsSpecBuildDict,
-)
+from datetime import datetime
+
 from wad_app_py_wad_program.database_specifications import (
-    FieldIsEqualToSpecification,
+    ComparisonOperator,
+    FieldComparisonOperatorSpecification,
     SessionTextContainsSpecification,
     SpeakerTextContainsSpecification,
     TopicTextContainsSpecification,
@@ -19,56 +18,80 @@ from wad_app_py_wad_program.model import (
     Topic,
 )
 
-cli_session_text_filters: TextContainsSpecBuildDict[Session] = {
-    'title': lambda text: SessionTextContainsSpecification(text, ['title']),
-    'description': lambda text: SessionTextContainsSpecification(
-        text, ['description']
-    ),
-    'any': lambda text: SessionTextContainsSpecification(
-        text, ['title', 'description', 'stage', 'main_topic', 'topics']
-    ),
-    'main_topic': lambda text: SessionTextContainsSpecification(
-        text, ['main_topic']
-    ),
-    'stage': lambda text: SessionTextContainsSpecification(text, ['stage']),
-    'topic': lambda text: SessionTextContainsSpecification(text, ['topics']),
-}
+from .filter_specifications import FilterSpecifications
 
-cli_session_equality_filters: EqualitySpecBuildDict[Session] = {
-    'filter_id': lambda value: FieldIsEqualToSpecification(value, 'id', int),
-    'state': lambda value: FieldIsEqualToSpecification(
-        SessionState(value), 'state', SessionState
-    ),
-    'interest_level': lambda value: FieldIsEqualToSpecification(
-        InterestLevel(value), 'interest_level', InterestLevel
-    ),
-    'day': lambda value: FieldIsEqualToSpecification(Day(value), 'day', Day),
-}
+session_filters = FilterSpecifications[Session](
+    text={
+        'title': lambda text: SessionTextContainsSpecification(
+            text, ['title']
+        ),
+        'description': lambda text: SessionTextContainsSpecification(
+            text, ['description']
+        ),
+        'any': lambda text: SessionTextContainsSpecification(
+            text, ['title', 'description', 'stage', 'main_topic', 'topics']
+        ),
+        'main_topic': lambda text: SessionTextContainsSpecification(
+            text, ['main_topic']
+        ),
+        'stage': lambda text: SessionTextContainsSpecification(
+            text, ['stage']
+        ),
+        'topic': lambda text: SessionTextContainsSpecification(
+            text, ['topics']
+        ),
+    },
+    comparison={
+        'filter_id': lambda value: FieldComparisonOperatorSpecification(
+            value, 'id', ComparisonOperator.EQUALS
+        ),
+        'state': lambda value: FieldComparisonOperatorSpecification(
+            SessionState(value), 'state', ComparisonOperator.EQUALS
+        ),
+        'interest_level': lambda value: FieldComparisonOperatorSpecification(
+            InterestLevel(value), 'interest_level', ComparisonOperator.EQUALS
+        ),
+        'day': lambda value: FieldComparisonOperatorSpecification(
+            Day(value), 'day', ComparisonOperator.EQUALS
+        ),
+        'start_time_after': lambda value: FieldComparisonOperatorSpecification(
+            datetime.strptime(value, '%H:%M').time(),
+            'start_time_time',
+            ComparisonOperator.LE,
+        ),
+        'end_time_before': lambda value: FieldComparisonOperatorSpecification(
+            datetime.strptime(value, '%H:%M').time(),
+            'end_time_time',
+            ComparisonOperator.GE,
+        ),
+    },
+)
 
-cli_speaker_text_filters: TextContainsSpecBuildDict[Speaker] = {
-    'speaker_any': lambda text: SpeakerTextContainsSpecification(
-        text, ['name', 'job', 'tagline', 'summary']
-    ),
-    'speaker_name': lambda text: SpeakerTextContainsSpecification(
-        text, ['name']
-    ),
-    'speaker_tagline': lambda text: SpeakerTextContainsSpecification(
-        text, ['tagline']
-    ),
-    'speaker_job': lambda text: SpeakerTextContainsSpecification(
-        text, ['job']
-    ),
-    'speaker_summary': lambda text: SpeakerTextContainsSpecification(
-        text, ['summary']
-    ),
-}
+session_speaker_filters = FilterSpecifications[Speaker](
+    text={
+        'speaker_any': lambda text: SpeakerTextContainsSpecification(
+            text, ['name', 'job', 'tagline', 'summary']
+        ),
+        'speaker_name': lambda text: SpeakerTextContainsSpecification(
+            text, ['name']
+        ),
+        'speaker_tagline': lambda text: SpeakerTextContainsSpecification(
+            text, ['tagline']
+        ),
+        'speaker_job': lambda text: SpeakerTextContainsSpecification(
+            text, ['job']
+        ),
+        'speaker_summary': lambda text: SpeakerTextContainsSpecification(
+            text, ['summary']
+        ),
+    }
+)
 
-cli_topics_text_filters: TextContainsSpecBuildDict[Topic] = {
-    'name': lambda text: TopicTextContainsSpecification(text, ['name'])
-}
-
-cli_topics_equality_filters: EqualitySpecBuildDict[Topic] = {
-    'main_topic': lambda value: FieldIsEqualToSpecification(
-        bool(value), 'is_main_topic', bool
-    ),
-}
+topic_filters = FilterSpecifications[Topic](
+    text={'name': lambda text: TopicTextContainsSpecification(text, ['name'])},
+    comparison={
+        'main_topic': lambda value: FieldComparisonOperatorSpecification(
+            bool(value), 'is_main_topic', ComparisonOperator.EQUALS
+        ),
+    },
+)
