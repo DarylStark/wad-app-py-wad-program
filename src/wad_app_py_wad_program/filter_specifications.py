@@ -1,7 +1,7 @@
 """Module with specification builders."""
 
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any
 
 from pydantic import BaseModel
 

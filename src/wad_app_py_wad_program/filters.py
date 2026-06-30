@@ -1,4 +1,4 @@
-"""Module with filters for the CLI commands."""
+"""Module with filters for the database."""
 
 from datetime import datetime
 

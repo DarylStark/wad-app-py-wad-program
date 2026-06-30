@@ -6,17 +6,14 @@ from rich.console import Console
 from rich.progress import Progress
 from typer import Context, Option, Typer
 
-from wad_app_py_wad_program.cli_filters import (
+from .console_visitor import DataType, DetailsVisitor, TableVisitor
+from .database_specifications import (
+    SpeakerSessionSpecification,
+)
+from .filters import (
     session_filters,
     session_speaker_filters,
     topic_filters,
-)
-
-from .console_visitor import DataType, DetailsVisitor, TableVisitor
-from .database_specifications import (
-    SessionCompositeSpecification,
-    SpeakerSessionSpecification,
-    TopicCompositeSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
 from .json_database import JsonDatabase
