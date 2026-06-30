@@ -1,6 +1,5 @@
 """Main entry point for the CLI."""
 
-from datetime import datetime
 from enum import Enum
 
 from rich.console import Console
@@ -12,7 +11,7 @@ from wad_app_py_wad_program.cli_builders import (
     build_text_specification,
 )
 from wad_app_py_wad_program.cli_filters import (
-    cli_session_equality_filters,
+    cli_comparison_filters,
     cli_session_text_filters,
     cli_speaker_text_filters,
     cli_topics_equality_filters,
@@ -21,10 +20,8 @@ from wad_app_py_wad_program.cli_filters import (
 
 from .console_visitor import DataType, DetailsVisitor, TableVisitor
 from .database_specifications import (
-    EndTimeAtOrBeforeSpecification,
     SessionCompositeSpecification,
     SpeakerSessionSpecification,
-    StartTimeAtOrAfterSpecification,
     TopicCompositeSpecification,
 )
 from .html_program_retriever import HtmlProgramRetriever
@@ -184,18 +181,8 @@ def sessions(
         )
     )
     spec.add_specification(
-        build_equality_specification(cli_session_equality_filters, ctx.params)
+        build_equality_specification(cli_comparison_filters, ctx.params)
     )
-
-    # Time filters
-    if start_time_after:
-        start_time_object = datetime.strptime(start_time_after, '%H:%M').time()
-        spec.add_specification(
-            StartTimeAtOrAfterSpecification(start_time_object)
-        )
-    if end_time_before:
-        end_time_object = datetime.strptime(end_time_before, '%H:%M').time()
-        spec.add_specification(EndTimeAtOrBeforeSpecification(end_time_object))
 
     # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)

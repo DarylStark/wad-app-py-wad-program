@@ -1,11 +1,14 @@
 """Module with filters for the CLI commands."""
 
+from datetime import datetime
+
 from wad_app_py_wad_program.cli_builders import (
     EqualitySpecBuildDict,
     TextContainsSpecBuildDict,
 )
 from wad_app_py_wad_program.database_specifications import (
-    FieldIsEqualToSpecification,
+    ComparisonOperator,
+    FieldComparisonOperatorSpecification,
     SessionTextContainsSpecification,
     SpeakerTextContainsSpecification,
     TopicTextContainsSpecification,
@@ -34,15 +37,29 @@ cli_session_text_filters: TextContainsSpecBuildDict[Session] = {
     'topic': lambda text: SessionTextContainsSpecification(text, ['topics']),
 }
 
-cli_session_equality_filters: EqualitySpecBuildDict[Session] = {
-    'filter_id': lambda value: FieldIsEqualToSpecification(value, 'id', int),
-    'state': lambda value: FieldIsEqualToSpecification(
-        SessionState(value), 'state', SessionState
+cli_comparison_filters: EqualitySpecBuildDict[Session] = {
+    'filter_id': lambda value: FieldComparisonOperatorSpecification(
+        value, 'id', ComparisonOperator.EQUALS
     ),
-    'interest_level': lambda value: FieldIsEqualToSpecification(
-        InterestLevel(value), 'interest_level', InterestLevel
+    'state': lambda value: FieldComparisonOperatorSpecification(
+        SessionState(value), 'state', ComparisonOperator.EQUALS
     ),
-    'day': lambda value: FieldIsEqualToSpecification(Day(value), 'day', Day),
+    'interest_level': lambda value: FieldComparisonOperatorSpecification(
+        InterestLevel(value), 'interest_level', ComparisonOperator.EQUALS
+    ),
+    'day': lambda value: FieldComparisonOperatorSpecification(
+        Day(value), 'day', ComparisonOperator.EQUALS
+    ),
+    'start_time_after': lambda value: FieldComparisonOperatorSpecification(
+        datetime.strptime(value, '%H:%M').time(),
+        'start_time_time',
+        ComparisonOperator.LE,
+    ),
+    'end_time_before': lambda value: FieldComparisonOperatorSpecification(
+        datetime.strptime(value, '%H:%M').time(),
+        'end_time_time',
+        ComparisonOperator.GE,
+    ),
 }
 
 cli_speaker_text_filters: TextContainsSpecBuildDict[Speaker] = {
@@ -68,7 +85,7 @@ cli_topics_text_filters: TextContainsSpecBuildDict[Topic] = {
 }
 
 cli_topics_equality_filters: EqualitySpecBuildDict[Topic] = {
-    'main_topic': lambda value: FieldIsEqualToSpecification(
+    'main_topic': lambda value: FieldComparisonOperatorSpecification(
         bool(value), 'is_main_topic', bool
     ),
 }

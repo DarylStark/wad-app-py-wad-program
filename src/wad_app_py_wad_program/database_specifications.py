@@ -1,7 +1,7 @@
 """Module with Specifications for the database."""
 
 from abc import ABC, abstractmethod
-from datetime import time
+from enum import Enum
 from typing import Any, override
 
 from .model import Session, Speaker, Topic
@@ -66,18 +66,60 @@ class TextContainsSpecification[T](Specification[T]):
         return any(satifisfactions)
 
 
-class FieldIsEqualToSpecification[T](Specification[T]):
-    """Specification to cehck if a specific field is equal to a value."""
+class ComparisonOperator(Enum):
+    """Enum to specify which comparison operator to use."""
 
-    def __init__(self, value: Any, field: str, expected_type: type) -> None:  # noqa: ANN401
+    EQUALS = 0
+    LE = 1
+    LT = 2
+    GE = 3
+    GT = 4
+    NOT_EQUALS = 5
+
+
+class FieldComparisonOperatorSpecification[T](Specification[T]):
+    """Specification to check a binary operator for a specific field."""
+
+    def __init__(
+        self,
+        value: Any,  # noqa: ANN401
+        field: str,
+        operator: ComparisonOperator,
+    ) -> None:
         """Set default values."""
         self._value = value
         self._field = field
-        self._expected_type = expected_type
+        self._operator = operator
+
+    def _is_satisfied_by_equals(self, obj: T) -> bool:
+        return self._value == getattr(obj, self._field)
+
+    def _is_satisfied_by_le(self, obj: T) -> bool:
+        return self._value <= getattr(obj, self._field)
+
+    def _is_satisfied_by_lt(self, obj: T) -> bool:
+        return self._value < getattr(obj, self._field)
+
+    def _is_satisfied_by_ge(self, obj: T) -> bool:
+        return self._value >= getattr(obj, self._field)
+
+    def _is_satisfied_by_gt(self, obj: T) -> bool:
+        return self._value > getattr(obj, self._field)
+
+    def _is_satisfied_by_not(self, obj: T) -> bool:
+        return self._value != getattr(obj, self._field)
 
     @override
     def is_satisfied_by(self, obj: T) -> bool:
-        return getattr(obj, self._field) == self._value
+        operator_methods = {
+            ComparisonOperator.EQUALS: self._is_satisfied_by_equals,
+            ComparisonOperator.LE: self._is_satisfied_by_le,
+            ComparisonOperator.LT: self._is_satisfied_by_lt,
+            ComparisonOperator.GE: self._is_satisfied_by_ge,
+            ComparisonOperator.GT: self._is_satisfied_by_gt,
+            ComparisonOperator.NOT_EQUALS: self._is_satisfied_by_not,
+        }
+        return operator_methods[self._operator](obj)
 
 
 SessionSpecification = Specification[Session]
@@ -89,34 +131,6 @@ SpeakerTextContainsSpecification = TextContainsSpecification[Speaker]
 TopicSpecification = Specification[Topic]
 TopicCompositeSpecification = CompositeSpecification[Topic]
 TopicTextContainsSpecification = TextContainsSpecification[Topic]
-
-
-class StartTimeAtOrAfterSpecification(SessionSpecification):
-    """Specification for sessions with a starttime at or after."""
-
-    def __init__(self, start_time: time) -> None:
-        """Set the starttime to search for."""
-        self._start_time = start_time
-
-    @override
-    def is_satisfied_by(self, obj: Session) -> bool:
-        if not obj.start_time:
-            return False
-        return self._start_time <= obj.start_time.time()
-
-
-class EndTimeAtOrBeforeSpecification(SessionSpecification):
-    """Specification for sessions with a endtime at or before."""
-
-    def __init__(self, end_time: time) -> None:
-        """Set the end time to search for."""
-        self._end_time = end_time
-
-    @override
-    def is_satisfied_by(self, obj: Session) -> bool:
-        if not obj.end_time:
-            return False
-        return obj.end_time.time() <= self._end_time
 
 
 class SpeakerSessionSpecification(SessionSpecification):
