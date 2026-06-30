@@ -5,7 +5,7 @@ from wad_app_py_wad_program.cli_builders import (
     TextContainsSpecBuildDict,
 )
 from wad_app_py_wad_program.database_specifications import (
-    FieldIsEqualTooSpecification,
+    FieldIsEqualToSpecification,
     SessionTextContainsSpecification,
     SpeakerTextContainsSpecification,
     TopicTextContainsSpecification,
@@ -35,14 +35,14 @@ cli_session_text_filters: TextContainsSpecBuildDict[Session] = {
 }
 
 cli_session_equality_filters: EqualitySpecBuildDict[Session] = {
-    'filter_id': lambda value: FieldIsEqualTooSpecification(value, 'id', int),
-    'state': lambda value: FieldIsEqualTooSpecification(
+    'filter_id': lambda value: FieldIsEqualToSpecification(value, 'id', int),
+    'state': lambda value: FieldIsEqualToSpecification(
         SessionState(value), 'state', SessionState
     ),
-    'interest_level': lambda value: FieldIsEqualTooSpecification(
+    'interest_level': lambda value: FieldIsEqualToSpecification(
         InterestLevel(value), 'interest_level', InterestLevel
     ),
-    'day': lambda value: FieldIsEqualTooSpecification(Day(value), 'day', Day),
+    'day': lambda value: FieldIsEqualToSpecification(Day(value), 'day', Day),
 }
 
 cli_speaker_text_filters: TextContainsSpecBuildDict[Speaker] = {
@@ -68,7 +68,7 @@ cli_topics_text_filters: TextContainsSpecBuildDict[Topic] = {
 }
 
 cli_topics_equality_filters: EqualitySpecBuildDict[Topic] = {
-    'main_topic': lambda value: FieldIsEqualTooSpecification(
+    'main_topic': lambda value: FieldIsEqualToSpecification(
         bool(value), 'is_main_topic', bool
     ),
 }

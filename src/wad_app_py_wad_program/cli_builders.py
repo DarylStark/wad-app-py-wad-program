@@ -9,7 +9,7 @@ from typing import Any, TypeVar
 
 from .database_specifications import (
     CompositeSpecification,
-    FieldIsEqualTooSpecification,
+    FieldIsEqualToSpecification,
     TextContainsSpecification,
 )
 
@@ -19,7 +19,7 @@ type TextContainsSpecBuildDict[T] = dict[
 ]
 
 type EqualitySpecBuildDict[T] = dict[
-    str, Callable[[str], FieldIsEqualTooSpecification[T]]
+    str, Callable[[str], FieldIsEqualToSpecification[T]]
 ]
 
 

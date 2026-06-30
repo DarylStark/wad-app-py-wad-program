@@ -66,7 +66,7 @@ class TextContainsSpecification[T](Specification[T]):
         return any(satifisfactions)
 
 
-class FieldIsEqualTooSpecification[T](Specification[T]):
+class FieldIsEqualToSpecification[T](Specification[T]):
     """Specification to cehck if a specific field is equal to a value."""
 
     def __init__(self, value: Any, field: str, expected_type: type) -> None:  # noqa: ANN401
