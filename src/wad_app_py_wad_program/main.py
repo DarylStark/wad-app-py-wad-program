@@ -6,16 +6,10 @@ from rich.console import Console
 from rich.progress import Progress
 from typer import Context, Option, Typer
 
-from wad_app_py_wad_program.cli_builders import (
-    build_equality_specification,
-    build_text_specification,
-)
 from wad_app_py_wad_program.cli_filters import (
-    cli_comparison_filters,
-    cli_session_text_filters,
-    cli_speaker_text_filters,
-    cli_topics_equality_filters,
-    cli_topics_text_filters,
+    session_filters,
+    session_speaker_filters,
+    topic_filters,
 )
 
 from .console_visitor import DataType, DetailsVisitor, TableVisitor
@@ -170,18 +164,9 @@ def sessions(
     console = ctx.obj['console']
     wad = ctx.obj['wad']
 
-    spec = SessionCompositeSpecification()
-
+    spec = session_filters.build(ctx.params)
     spec.add_specification(
-        build_text_specification(cli_session_text_filters, ctx.params)
-    )
-    spec.add_specification(
-        SpeakerSessionSpecification(
-            build_text_specification(cli_speaker_text_filters, ctx.params)
-        )
-    )
-    spec.add_specification(
-        build_equality_specification(cli_comparison_filters, ctx.params)
+        SpeakerSessionSpecification(session_speaker_filters.build(ctx.params))
     )
 
     # Retrieve sessions
@@ -236,16 +221,8 @@ def topics(
     console = ctx.obj['console']
     wad = ctx.obj['wad']
 
-    spec = TopicCompositeSpecification()
-    spec.add_specification(
-        build_text_specification(cli_topics_text_filters, ctx.params)
-    )
-    spec.add_specification(
-        build_equality_specification(cli_topics_equality_filters, ctx.params)
-    )
-
     # Get the topics
-    topics = wad.get_topics(spec)
+    topics = wad.get_topics(topic_filters.build(ctx.params))
 
     # Generate output
     output_visitors = {
