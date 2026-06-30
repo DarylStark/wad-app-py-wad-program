@@ -20,12 +20,11 @@
             "request": "launch",
             "module": "wad_app_py_wad_program",
             "args": [
+                "--json-filename",
                 "./test_database.json",
                 "sessions",
                 "--description-text-i",
-                "python",
-                "--state",
-                "new"
+                "python"
             ]
         },
         {

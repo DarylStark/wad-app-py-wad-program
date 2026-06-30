@@ -1,6 +1,7 @@
 """Main entry point for the CLI."""
 
 from enum import Enum
+from pathlib import Path
 
 from rich.console import Console
 from rich.progress import Progress
@@ -269,7 +270,16 @@ def update(
 
 
 @app.callback()
-def common_command_line_options(ctx: Context, json_filename: str) -> None:
+def common_command_line_options(
+    ctx: Context,
+    json_filename: Path = Option(
+        default='~/wadprogram.json',
+        envvar='WADPROGRAM_DB_FILE',
+        writable=True,
+        readable=True,
+        resolve_path=True,
+    ),
+) -> None:
     """Default callback for the command line options.
 
     Will always be called before the correct command is called. This way, we
@@ -279,7 +289,7 @@ def common_command_line_options(ctx: Context, json_filename: str) -> None:
         'console': console,
         'wad': WadProgramApp(
             retriever=HtmlProgramRetriever(WebPageLoader()),
-            database=JsonDatabase(json_filename=json_filename),
+            database=JsonDatabase(json_filename=str(json_filename)),
         ),
     }
 
