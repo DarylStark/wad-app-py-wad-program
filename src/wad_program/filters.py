@@ -2,14 +2,15 @@
 
 from datetime import datetime
 
-from wad_app_py_wad_program.database_specifications import (
+from .database_specifications import (
     ComparisonOperator,
     FieldComparisonOperatorSpecification,
     SessionTextContainsSpecification,
     SpeakerTextContainsSpecification,
     TopicTextContainsSpecification,
 )
-from wad_app_py_wad_program.model import (
+from .filter_specifications import FilterSpecifications
+from .model import (
     Day,
     InterestLevel,
     Session,
@@ -17,8 +18,6 @@ from wad_app_py_wad_program.model import (
     Speaker,
     Topic,
 )
-
-from .filter_specifications import FilterSpecifications
 
 session_filters = FilterSpecifications[Session](
     text={

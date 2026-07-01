@@ -8,7 +8,7 @@
             "name": "Wad - Update",
             "type": "debugpy",
             "request": "launch",
-            "module": "wad_app_py_wad_program",
+            "module": "wad_program",
             "args": [
                 "--json-filename",
                 "./test_database.json",
@@ -19,7 +19,7 @@
             "name": "Wad - List (table)",
             "type": "debugpy",
             "request": "launch",
-            "module": "wad_app_py_wad_program",
+            "module": "wad_program",
             "args": [
                 "--json-filename",
                 "./test_database.json",
@@ -32,7 +32,7 @@
             "name": "Wad - List (details)",
             "type": "debugpy",
             "request": "launch",
-            "module": "wad_app_py_wad_program",
+            "module": "wad_program",
             "args": [
                 "--json-filename",
                 "./test_database.json",
