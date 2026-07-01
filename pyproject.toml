@@ -1,9 +1,9 @@
 [project]
-name = "wad-app-py-wad-program"
+name = "wad-program"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [{ name = "Daryl Stark", email = "daryl.stark@vodafoneziggo.com" }]
+authors = [{ name = "Daryl Stark", email = "daryl@dstark.nl" }]
 requires-python = ">=3.14"
 dependencies = [
     "bs4>=0.0.2",
@@ -23,7 +23,7 @@ dev = [
 ]
 
 [project.scripts]
-wad-app-py-wad-program = "wad_app_py_wad_program:main"
+wad-program = "wad_program:main"
 
 [build-system]
 requires = ["uv_build>=0.11.24,<0.12.0"]

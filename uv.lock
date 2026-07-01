@@ -471,7 +471,7 @@ wheels = [
 ]
 
 [[package]]
-name = "wad-app-py-wad-program"
+name = "wad-program"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

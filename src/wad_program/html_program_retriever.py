@@ -1,5 +1,8 @@
 """Package with a Program Retriever that retrieves via HTML."""
 
+from cmath import e
+from requests import HTTPError
+
 import re
 from collections.abc import Callable
 from datetime import date, datetime
@@ -183,13 +186,19 @@ class HtmlProgramRetriever(ProgramRetriever):
             hook_total(len(unique_urls))
 
         for done, url in enumerate(unique_urls):
-            sess = self._get_session_from_session_page(
-                session_url=f'https://www.wearedevelopers.com{url}'
-            )
-            if sess:
-                session_list.append(sess)
-            if hook_progress:
-                hook_progress(done + 1)
+            try:
+                sess = self._get_session_from_session_page(
+                    session_url=f'https://www.wearedevelopers.com{url}'
+                )
+            except HTTPError:
+                # Print message
+                continue
+            else:
+                if sess:
+                    session_list.append(sess)
+            finally:
+                if hook_progress:
+                    hook_progress(done + 1)
 
         # TODO: make this a method for `EventData`. Within the `Database` class
         # this is also used and the code is now duplicate.

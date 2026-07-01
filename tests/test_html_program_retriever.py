@@ -1,7 +1,7 @@
 """Tests for the HtmlProgramRetriever class."""
 
-from wad_app_py_wad_program.html_program_retriever import HtmlProgramRetriever
-from wad_app_py_wad_program.page_loader import LocalFilePageLoader
+from wad_program.html_program_retriever import HtmlProgramRetriever
+from wad_program.page_loader import LocalFilePageLoader
 
 
 def test_loading_sessions_from_html() -> None:
