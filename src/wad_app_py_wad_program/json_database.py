@@ -41,6 +41,6 @@ class JsonDatabase(Database):
         data_to_save.topics = []
 
         Path(self._filename).write_text(
-            data_to_save.model_dump_json(),
+            data_to_save.model_dump_json(indent=4),
             encoding='utf-8',
         )
