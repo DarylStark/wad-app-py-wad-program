@@ -1,10 +1,9 @@
 name: Build and publish
 
 on:
-  workflow_run:
-    workflows: ["Push to dev or main"]
-    types:
-      - completed
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build-and-publish:
