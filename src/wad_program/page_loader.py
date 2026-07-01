@@ -4,8 +4,6 @@ A PageLoader loads a specific page from a specific URL. This can be by
 downloading it from the Internet, or using a local file (for tests).
 """
 
-from requests import HTTPError
-
 from abc import ABC, abstractmethod
 from typing import override
 

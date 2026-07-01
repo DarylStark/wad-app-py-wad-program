@@ -1,14 +1,12 @@
 """Package with a Program Retriever that retrieves via HTML."""
 
-from cmath import e
-from requests import HTTPError
-
 import re
 from collections.abc import Callable
 from datetime import date, datetime
 from typing import override
 
 from bs4 import BeautifulSoup, Tag
+from requests import HTTPError
 
 from .exceptions import PageNotFoundException
 from .model import EventData, Session, Speaker

@@ -147,6 +147,8 @@ class SpeakerSessionSpecification(SessionSpecification):
 
     @override
     def is_satisfied_by(self, obj: Session) -> bool:
+        if len(obj.speakers) == 0:
+            return True
         found: list[bool] = [
             self._speaker_spec.is_satisfied_by(speaker)
             for speaker in obj.speakers
