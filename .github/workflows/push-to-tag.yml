@@ -1,0 +1,24 @@
+name: Build and publish
+
+on:
+  workflow_run:
+    workflows: ["Push to dev or main"]
+    types:
+      - completed
+
+jobs:
+  build-and-publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN }} 
+    steps:
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+      - uses: actions/checkout@v7
+      - name: Build and publish
+        run: |
+          uv build
+          uv publish

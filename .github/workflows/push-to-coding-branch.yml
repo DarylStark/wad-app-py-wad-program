@@ -1,0 +1,11 @@
+---
+name: Push to coding branch
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
