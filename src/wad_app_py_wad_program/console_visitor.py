@@ -153,7 +153,8 @@ class DetailsVisitor(ConsoleVisitor):
 
         text = session.description
 
-        footer = f'[b][green]Topics:[/green][/b] {", ".join(session.topics)}'
+        footer = f'[b][green]Topics:[/green][/b] {", ".join(session.topics)}\n'
+        footer += f'[b][green]URL:[/green][/b] {session.url}'
 
         speakers: list[str] = []
         for speaker in session.speakers:
