@@ -21,7 +21,7 @@ class HtmlProgramRetriever(ProgramRetriever):
         """Set the initial values."""
         self._page_loader = page_loader
 
-    def _get_session_from_session_page(
+    def _get_session_from_session_page( # noqa: PLR0912,PLR0915
         self, session_url: str
     ) -> Session | None:
         try:
