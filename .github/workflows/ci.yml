@@ -1,0 +1,36 @@
+---
+name: CI
+
+on:
+  workflow_call:
+
+jobs:
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+      - uses: actions/checkout@v7
+      - name: Type testing
+        run: |
+          uv run --frozen ry --check .
+      - uses: astral-sh/ruff-action@v3
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: "format --check --diff"
+
+  unit-testing:
+    name: Unit Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install the latest version of uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "latest"
+      - uses: actions/checkout@v7
+      - name: Run tests
+        run: |
+          uv run --frozen pytest

@@ -1,0 +1,20 @@
+---
+name: Push to dev or main
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+  prep-deployment:
+    uses: ./.github/workflows/cd-deploy-prep.yml
+    needs: ci
