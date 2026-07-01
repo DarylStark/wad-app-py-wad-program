@@ -71,4 +71,5 @@ class WebPageLoader(PageLoader):
         if response.status_code == 404:
             raise PageNotFoundException('Page not found')
         response.raise_for_status()
+        response.encoding = 'utf-8'
         return response.text

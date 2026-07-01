@@ -71,12 +71,13 @@ class Database(ABC):
         for id, session in sessions_with_id.items():
             if id not in incoming_sessions_with_id:
                 session.state = SessionState.REMOVED
+                incoming_sessions_with_id[id] = session
             progress += 1
             if hook_progress:
                 hook_progress(progress)
 
         # Update the sessions
-        self._data.sessions = list(sessions_with_id.values())
+        self._data.sessions = list(incoming_sessions_with_id.values())
 
         # Sort on startdate
         self._data.sessions.sort(key=lambda session: session.start_time)

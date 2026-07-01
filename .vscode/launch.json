@@ -10,6 +10,7 @@
             "request": "launch",
             "module": "wad_app_py_wad_program",
             "args": [
+                "--json-filename",
                 "./test_database.json",
                 "update"
             ]
@@ -33,6 +34,7 @@
             "request": "launch",
             "module": "wad_app_py_wad_program",
             "args": [
+                "--json-filename",
                 "./test_database.json",
                 "sessions",
                 "--output-type=details"
