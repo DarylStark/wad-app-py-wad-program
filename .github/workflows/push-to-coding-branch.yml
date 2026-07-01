@@ -3,9 +3,8 @@ name: Push to coding branch
 
 on:
   push:
-    branches-ignore:
-      - main
-      - dev
+    branches:
+      - '**'
 
 jobs:
   ci:
