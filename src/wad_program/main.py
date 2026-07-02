@@ -163,9 +163,17 @@ def sessions(
     wad = ctx.obj['wad']
 
     spec = session_filters.build(ctx.params)
-    spec.add_specification(
-        SpeakerSessionSpecification(session_speaker_filters.build(ctx.params))
-    )
+    speaker_filter = [
+        filter
+        for filter_name, filter in ctx.params.items()
+        if filter_name.startswith('speaker_') and filter
+    ]
+    if speaker_filter:
+        spec.add_specification(
+            SpeakerSessionSpecification(
+                session_speaker_filters.build(ctx.params)
+            )
+        )
 
     # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)
