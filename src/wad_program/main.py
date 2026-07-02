@@ -277,7 +277,7 @@ def common_command_line_options(
         envvar='WADPROGRAM_DB_FILE',
         writable=True,
         readable=True,
-        resolve_path=True,
+        resolve_path=False,
     ),
 ) -> None:
     """Default callback for the command line options.
@@ -289,7 +289,9 @@ def common_command_line_options(
         'console': console,
         'wad': WadProgramApp(
             retriever=HtmlProgramRetriever(WebPageLoader()),
-            database=JsonDatabase(json_filename=str(json_filename)),
+            database=JsonDatabase(
+                json_filename=str(json_filename.expanduser().resolve())
+            ),
         ),
     }
 
