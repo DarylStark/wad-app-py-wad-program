@@ -163,9 +163,17 @@ def sessions(
     wad = ctx.obj['wad']
 
     spec = session_filters.build(ctx.params)
-    spec.add_specification(
-        SpeakerSessionSpecification(session_speaker_filters.build(ctx.params))
-    )
+    speaker_filter = [
+        filter
+        for filter_name, filter in ctx.params.items()
+        if filter_name.startswith('speaker_') and filter
+    ]
+    if speaker_filter:
+        spec.add_specification(
+            SpeakerSessionSpecification(
+                session_speaker_filters.build(ctx.params)
+            )
+        )
 
     # Retrieve sessions
     sessions: list[Session] = wad.get_sessions(spec)
@@ -277,7 +285,7 @@ def common_command_line_options(
         envvar='WADPROGRAM_DB_FILE',
         writable=True,
         readable=True,
-        resolve_path=True,
+        resolve_path=False,
     ),
 ) -> None:
     """Default callback for the command line options.
@@ -289,7 +297,9 @@ def common_command_line_options(
         'console': console,
         'wad': WadProgramApp(
             retriever=HtmlProgramRetriever(WebPageLoader()),
-            database=JsonDatabase(json_filename=str(json_filename)),
+            database=JsonDatabase(
+                json_filename=str(json_filename.expanduser().resolve())
+            ),
         ),
     }
 
